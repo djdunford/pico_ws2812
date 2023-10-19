@@ -1,6 +1,7 @@
-import array, time
+import array
 from machine import Pin
 import rp2
+import uasyncio
 
 # Configure the number of WS2812 LEDs.
 NUM_LEDS = 100
@@ -32,7 +33,7 @@ sm.active(1)
 ar = array.array("I", [0 for _ in range(NUM_LEDS)])
 
 ##########################################################################
-def pixels_show():
+async def pixels_show():
     dimmer_ar = array.array("I", [0 for _ in range(NUM_LEDS)])
     for i,c in enumerate(ar):
         r = int(((c >> 8) & 0xFF) * brightness)
@@ -40,7 +41,7 @@ def pixels_show():
         b = int((c & 0xFF) * brightness)
         dimmer_ar[i] = (g<<16) + (r<<8) + b
     sm.put(dimmer_ar, 8)
-    time.sleep_ms(10)
+    uasyncio.sleep_ms(10)
 
 def pixels_set(i, color):
     ar[i] = (color[1]<<16) + (color[0]<<8) + color[2]
@@ -49,12 +50,12 @@ def pixels_fill(color):
     for i in range(len(ar)):
         pixels_set(i, color)
 
-def color_chase(color, wait):
+async def color_chase(color, wait):
     for i in range(NUM_LEDS):
         pixels_set(i, color)
-        time.sleep(wait)
+        uasyncio.sleep(wait)
         pixels_show()
-    time.sleep(0.2)
+    uasyncio.sleep(0.2)
  
 def wheel(pos):
     # Input a value 0 to 255 to get a color value.
@@ -70,11 +71,11 @@ def wheel(pos):
     return (pos * 3, 0, 255 - pos * 3)
  
  
-def rainbow_cycle(wait):
+async def rainbow_cycle(wait):
     for j in range(255):
         for i in range(NUM_LEDS):
             rc_index = (i * 256 // NUM_LEDS) + j
             pixels_set(i, wheel(rc_index & 255))
-        pixels_show()
-        time.sleep(wait)
+        await pixels_show()
+        uasyncio.sleep(wait)
 
