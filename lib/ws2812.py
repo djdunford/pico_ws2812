@@ -41,7 +41,7 @@ async def pixels_show():
         b = int((c & 0xFF) * brightness)
         dimmer_ar[i] = (g<<16) + (r<<8) + b
     sm.put(dimmer_ar, 8)
-    uasyncio.sleep_ms(10)
+    await uasyncio.sleep_ms(10)
 
 def pixels_set(i, color):
     ar[i] = (color[1]<<16) + (color[0]<<8) + color[2]
@@ -53,9 +53,9 @@ def pixels_fill(color):
 async def color_chase(color, wait):
     for i in range(NUM_LEDS):
         pixels_set(i, color)
-        uasyncio.sleep(wait)
-        pixels_show()
-    uasyncio.sleep(0.2)
+        await uasyncio.sleep(wait)
+        await pixels_show()
+    await uasyncio.sleep(0.2)
  
 def wheel(pos):
     # Input a value 0 to 255 to get a color value.
@@ -77,5 +77,5 @@ async def rainbow_cycle(wait):
             rc_index = (i * 256 // NUM_LEDS) + j
             pixels_set(i, wheel(rc_index & 255))
         await pixels_show()
-        uasyncio.sleep(wait)
+        await uasyncio.sleep(wait)
 
