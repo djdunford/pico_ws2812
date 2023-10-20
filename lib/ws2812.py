@@ -6,7 +6,7 @@ import uasyncio
 # Configure the number of WS2812 LEDs.
 NUM_LEDS = 100
 PIN_NUM = 22
-brightness = 0.8
+brightness = 1.0
 
 
 @rp2.asm_pio(sideset_init=rp2.PIO.OUT_LOW, out_shiftdir=rp2.PIO.SHIFT_LEFT, autopull=True, pull_thresh=24)
@@ -46,7 +46,7 @@ async def pixels_show():
 
 
 def pixels_set(i, color):
-    ar[i] = (color[1]<<16) + (color[0]<<8) + color[2]
+    ar[i] = (color[0]<<16) + (color[1]<<8) + color[2]
 
 
 def pixels_fill(color):
