@@ -8,6 +8,7 @@ NUM_LEDS = 100
 PIN_NUM = 22
 brightness = 0.8
 
+
 @rp2.asm_pio(sideset_init=rp2.PIO.OUT_LOW, out_shiftdir=rp2.PIO.SHIFT_LEFT, autopull=True, pull_thresh=24)
 def ws2812():
     T1 = 2
@@ -32,7 +33,7 @@ sm.active(1)
 # Display a pattern on the LEDs via an array of LED RGB values.
 ar = array.array("I", [0 for _ in range(NUM_LEDS)])
 
-##########################################################################
+
 async def pixels_show():
     dimmer_ar = array.array("I", [0 for _ in range(NUM_LEDS)])
     for i,c in enumerate(ar):
@@ -43,12 +44,15 @@ async def pixels_show():
     sm.put(dimmer_ar, 8)
     await uasyncio.sleep_ms(10)
 
+
 def pixels_set(i, color):
     ar[i] = (color[1]<<16) + (color[0]<<8) + color[2]
+
 
 def pixels_fill(color):
     for i in range(len(ar)):
         pixels_set(i, color)
+
 
 async def color_chase(color, wait):
     for i in range(NUM_LEDS):
@@ -57,6 +61,7 @@ async def color_chase(color, wait):
         await pixels_show()
     await uasyncio.sleep(0.2)
  
+
 def wheel(pos):
     # Input a value 0 to 255 to get a color value.
     # The colours are a transition r - g - b - back to r.
