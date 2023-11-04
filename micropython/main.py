@@ -52,15 +52,10 @@ async def blank():
 
 async def blue_green():
     try:
-        print("blue green")
-        for i in range(100):
-            if (i % 3) == 0:
-                ws2812.pixels_set(i, BLUE)
-            elif (i % 3) == 1:
-                ws2812.pixels_set(i, GREEN)
-            else:
-                ws2812.pixels_set(i, CYAN)
-        await ws2812.pixels_show()
+        print("blue green cycle")
+        color_range = range(85, 170, 1)
+        while True:
+            await ws2812.rainbow_cycle(0, color_range)
     except uasyncio.CancelledError:
         pass
 
