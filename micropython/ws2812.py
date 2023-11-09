@@ -79,7 +79,7 @@ def wheel(pos):
 async def rainbow_cycle(wait, color_range=range(255)):
     for j in color_range:
         for i in range(NUM_LEDS):
-            rc_index = (i * 256 // NUM_LEDS) + j
+            rc_index = (i * len(color_range) // NUM_LEDS) + j
             pixels_set(i, wheel(rc_index & 255))
         await pixels_show()
         await uasyncio.sleep(wait)
