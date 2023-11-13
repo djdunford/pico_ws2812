@@ -20,6 +20,10 @@ button2 = machine.Pin(20, machine.Pin.IN, machine.Pin.PULL_UP)
 button3 = machine.Pin(19, machine.Pin.IN, machine.Pin.PULL_UP)
 button4 = machine.Pin(18, machine.Pin.IN, machine.Pin.PULL_UP)
 
+print("Starting")
+led = machine.Pin(17, machine.Pin.OUT)
+print("Set LED pin")
+
 debounce = 1
 
 
@@ -76,6 +80,9 @@ async def rgb():
 
 
 async def main():
+    print("Turning LED on")
+    led.value(1)
+    print("LED on")
     pressed = time.time()-debounce
     running_task = None
     while True:
