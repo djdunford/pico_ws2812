@@ -87,7 +87,7 @@ async def led_flash():
             led.value(1)
             await uasyncio.sleep(0.02)
             led.value(0)
-            start_time += 1
+            start_time += 3
     except uasyncio.CancelledError:
         pass
 
