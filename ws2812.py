@@ -2,6 +2,7 @@ import array
 from machine import Pin
 import rp2
 import uasyncio
+import utime
 
 # Configure the number of WS2812 LEDs.
 NUM_LEDS = 100
@@ -84,3 +85,14 @@ async def rainbow_cycle(wait, color_range=range(255)):
         await pixels_show()
         await uasyncio.sleep(wait)
 
+
+async def rainbow_cycle_2(wait, color_range=list(range(255)), duration=10, speed=1, wavelength=1.0):
+    start_time = utime.time()
+    start_ticks = utime.ticks_ms()
+    while utime.time() < start_time + duration:
+        hue_offset = int(utime.ticks_diff(start_ticks, utime.ticks_ms()) * speed / 1000)
+        for i in range(NUM_LEDS):
+            arr_offset = (int(hue_offset + (i * wavelength))) % len(color_range)
+            pixels_set(i, wheel(color_range[arr_offset]))
+        await pixels_show()
+        await uasyncio.sleep(wait)

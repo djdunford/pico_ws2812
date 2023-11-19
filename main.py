@@ -52,13 +52,12 @@ async def blank():
     except uasyncio.CancelledError:
         pass
 
-
 async def blue_green():
     try:
         print("blue green cycle")
-        color_range = range(85, 170, 1)
-        while True:
-            await ws2812.rainbow_cycle(0, color_range)
+        color_range = list(range(85, 170, 1)) + list(range(169, 86, -1))
+        await ws2812.rainbow_cycle_2(0, color_range, 600, 100, 1.5)
+        print("blue green cycle ended")
     except uasyncio.CancelledError:
         pass
 
