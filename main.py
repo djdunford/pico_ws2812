@@ -3,7 +3,7 @@
 import ws2812
 import uasyncio
 import machine
-import time
+import utime
 
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
@@ -19,6 +19,9 @@ button1 = machine.Pin(21, machine.Pin.IN, machine.Pin.PULL_UP)
 button2 = machine.Pin(20, machine.Pin.IN, machine.Pin.PULL_UP)
 button3 = machine.Pin(19, machine.Pin.IN, machine.Pin.PULL_UP)
 button4 = machine.Pin(18, machine.Pin.IN, machine.Pin.PULL_UP)
+
+print("Starting")
+led = machine.Pin(17, machine.Pin.OUT)
 
 debounce = 1
 
@@ -49,18 +52,12 @@ async def blank():
     except uasyncio.CancelledError:
         pass
 
-
 async def blue_green():
     try:
-        print("blue green")
-        for i in range(100):
-            if (i % 3) == 0:
-                ws2812.pixels_set(i, BLUE)
-            elif (i % 3) == 1:
-                ws2812.pixels_set(i, GREEN)
-            else:
-                ws2812.pixels_set(i, CYAN)
-        await ws2812.pixels_show()
+        print("blue green cycle")
+        color_range = list(range(85, 170, 1)) + list(range(169, 86, -1))
+        await ws2812.rainbow_cycle_2(0, color_range, 600, 100, 1.5)
+        print("blue green cycle ended")
     except uasyncio.CancelledError:
         pass
 
@@ -80,40 +77,56 @@ async def rgb():
         pass
 
 
+async def led_flash():
+    try:
+        start_time = utime.time()
+        while True:
+            while utime.time() < start_time + 1:
+                await uasyncio.sleep(0.05)
+            led.value(1)
+            await uasyncio.sleep(0.02)
+            led.value(0)
+            start_time += 3
+    except uasyncio.CancelledError:
+        pass
+
+
 async def main():
-    pressed = time.time()-debounce
+    pressed = utime.time()-debounce
     running_task = None
+    flash = uasyncio.create_task(led_flash())
+    print("flasher running")
     while True:
-        if not button1.value() and time.time() > pressed+debounce:
+        if not button1.value() and utime.time() > pressed+debounce:
             print("button 1")
-            pressed=time.time()
+            pressed=utime.time()
             if running_task:
                 print("cancelling existing")
                 running_task.cancel()
                 await running_task
                 print("cancelled existing")
             running_task = uasyncio.create_task(blank())
-        if not button4.value() and time.time() > pressed+debounce:
+        if not button4.value() and utime.time() > pressed+debounce:
             print("button 4")
-            pressed=time.time()
+            pressed=utime.time()
             if running_task:
                 print("cancelling existing")
                 running_task.cancel()
                 await running_task
                 print("cancelled existing")
             running_task = uasyncio.create_task(demo1())
-        if not button3.value() and time.time() > pressed+debounce:
+        if not button3.value() and utime.time() > pressed+debounce:
             print("button 3")
-            pressed=time.time()
+            pressed=utime.time()
             if running_task:
                 print("cancelling existing")
                 running_task.cancel()
                 await running_task
                 print("cancelled existing")
             running_task = uasyncio.create_task(blue_green())
-        if not button2.value() and time.time() > pressed+debounce:
+        if not button2.value() and utime.time() > pressed+debounce:
             print("button 2")
-            pressed=time.time()
+            pressed=utime.time()
             if running_task:
                 print("cancelling existing")
                 running_task.cancel()
