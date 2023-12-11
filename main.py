@@ -58,7 +58,7 @@ async def blue_green():
     try:
         print("blue green cycle")
         color_range = list(range(85, 170, 1)) + list(range(169, 86, -1))
-        await ws2812.rainbow_cycle_2(0, color_range, 600, 100, 1.5)
+        await ws2812.rainbow_cycle_2(0, color_range, 2592000, 100, 1.5)
         print("blue green cycle ended")
     except uasyncio.CancelledError:
         pass
@@ -68,7 +68,7 @@ async def red_green():
     try:
         print("red green cycle")
         color_range = list(range(0, 86, 1)) + list(range(85, 0, -1))
-        await ws2812.rainbow_cycle_2(0, color_range, 600, 100, 1.5)
+        await ws2812.rainbow_cycle_2(0, color_range, 2592000, 100, 1.5)
         print("red green cycle ended")
     except uasyncio.CancelledError:
         pass
