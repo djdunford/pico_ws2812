@@ -4,6 +4,8 @@ import ws2812
 import uasyncio
 import machine
 import utime
+import time
+import random
 
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
@@ -52,12 +54,23 @@ async def blank():
     except uasyncio.CancelledError:
         pass
 
+
 async def blue_green():
     try:
         print("blue green cycle")
         color_range = list(range(85, 170, 1)) + list(range(169, 86, -1))
-        await ws2812.rainbow_cycle_2(0, color_range, 600, 100, 1.5)
+        await ws2812.rainbow_cycle_2(0, color_range, 2592000, 100, 1.5)
         print("blue green cycle ended")
+    except uasyncio.CancelledError:
+        pass
+
+
+async def red_green():
+    try:
+        print("red green cycle")
+        color_range = list(range(0, 86, 1)) + list(range(85, 0, -1))
+        await ws2812.rainbow_cycle_2(0, color_range, 2592000, 100, 1.5)
+        print("red green cycle ended")
     except uasyncio.CancelledError:
         pass
 
@@ -93,7 +106,7 @@ async def led_flash():
 
 async def main():
     pressed = utime.time()-debounce
-    running_task = None
+    running_task = uasyncio.create_task(red_green())
     flash = uasyncio.create_task(led_flash())
     print("flasher running")
     while True:
@@ -132,7 +145,7 @@ async def main():
                 running_task.cancel()
                 await running_task
                 print("cancelled existing")
-            running_task = uasyncio.create_task(rgb())
+            running_task = uasyncio.create_task(red_green())
         await uasyncio.sleep(0.05)
 
 
