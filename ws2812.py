@@ -5,7 +5,7 @@ import uasyncio
 import utime
 
 # Configure the number of WS2812 LEDs.
-NUM_LEDS = 100
+NUM_LEDS = 200  
 PIN_NUM = 22
 brightness = 1.0
 
