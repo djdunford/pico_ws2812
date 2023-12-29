@@ -7,7 +7,6 @@ import utime
 # Configure the number of WS2812 LEDs.
 NUM_LEDS = 200  
 PIN_NUM = 22
-master_brightness = 1.0
 
 
 @rp2.asm_pio(sideset_init=rp2.PIO.OUT_LOW, out_shiftdir=rp2.PIO.SHIFT_LEFT, autopull=True, pull_thresh=24)
@@ -38,9 +37,9 @@ ar = array.array("I", [0 for _ in range(NUM_LEDS)])
 async def pixels_show():
     dimmer_ar = array.array("I", [0 for _ in range(NUM_LEDS)])
     for i,c in enumerate(ar):
-        r = int(((c >> 8) & 0xFF) * master_brightness)
-        g = int(((c >> 16) & 0xFF) * master_brightness)
-        b = int((c & 0xFF) * master_brightness)
+        r = (c >> 8) & 0xFF
+        g = (c >> 16) & 0xFF
+        b = c & 0xFF
         dimmer_ar[i] = (g<<16) + (r<<8) + b
     sm.put(dimmer_ar, 8)
     await uasyncio.sleep_ms(10)
@@ -63,18 +62,24 @@ async def color_chase(color, wait):
     await uasyncio.sleep(0.2)
  
 
-def wheel(pos, brightness=1.0):
+def wheel(pos, milli_brightness:int=1000):
     # Input a value 0 to 255 to get a color value.
     # The colours are a transition r - g - b - back to r.
     if pos < 0 or pos > 255:
         return (0, 0, 0)
     if pos < 85:
-        return (int((255 - pos * 3) * brightness), int(pos * 3 * brightness), 0)
+        rising = pos * 3 * milli_brightness // 1000
+        falling = (255 - pos * 3) * milli_brightness // 1000
+        return (falling, rising, 0)
     if pos < 170:
         pos -= 85
-        return (0, int((255 - pos * 3) * brightness), int(pos * 3 * brightness))
+        rising = pos * 3 * milli_brightness // 1000
+        falling = (255 - pos * 3) * milli_brightness // 1000
+        return (0, falling, rising)
     pos -= 170
-    return (int(pos * 3 * brightness), 0, int((255 - pos * 3) * brightness))
+    rising = pos * 3 * milli_brightness // 1000
+    falling = (255 - pos * 3) * milli_brightness // 1000
+    return (rising, 0, falling)
  
  
 async def rainbow_cycle(wait, color_range=range(255)):
@@ -86,13 +91,13 @@ async def rainbow_cycle(wait, color_range=range(255)):
         await uasyncio.sleep(wait)
 
 
-async def rainbow_cycle_2(wait, color_range=list(range(255)), duration=10, speed=1, wavelength=1.0, brightness=1.0):
+async def rainbow_cycle_2(wait, color_range=list(range(255)), duration=10, speed=1, wavelength=1.0, milli_brightness=1000):
     start_time = utime.time()
     start_ticks = utime.ticks_ms()
     while utime.time() < start_time + duration:
         hue_offset = int(utime.ticks_diff(start_ticks, utime.ticks_ms()) * speed / 1000)
         for i in range(NUM_LEDS):
             arr_offset = (int(hue_offset + (i * wavelength))) % len(color_range)
-            pixels_set(i, wheel(color_range[arr_offset], brightness))
+            pixels_set(i, wheel(color_range[arr_offset], milli_brightness))
         await pixels_show()
         await uasyncio.sleep(wait)
