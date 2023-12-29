@@ -4,8 +4,6 @@ import ws2812
 import uasyncio
 import machine
 import utime
-import time
-import random
 
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
@@ -78,7 +76,7 @@ async def red_green():
 async def rgb():
     try:
         print("rgb")
-        for i in range(100):
+        for i in range(200):
             if (i % 3) == 0:
                 ws2812.pixels_set(i, RED)
             elif (i % 3) == 1:
@@ -107,7 +105,7 @@ async def led_flash():
 async def main():
     pressed = utime.time()-debounce
     running_task = uasyncio.create_task(red_green())
-    flash = uasyncio.create_task(led_flash())
+    uasyncio.create_task(led_flash())
     print("flasher running")
     while True:
         if not button1.value() and utime.time() > pressed+debounce:
