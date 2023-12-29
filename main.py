@@ -101,39 +101,38 @@ async def rgb():
 #         await uasyncio.sleep(wait)
 
 
-# async def xmas():
-#     try:
-#         snowing = []
-#         tick = utime.ticks_ms()
-#         while True:
-#             # if time.time() > tick + 0.01:
-#             if utime.ticks_diff(utime.ticks_ms(), tick) > 10:
-#                 dice = random.randrange(1,200)
-#                 if dice >= 20 and dice <= 148:
-#                     snowing.append({"starttime": utime.ticks_ms(), "blue": False, "position": random.choice(range(100))})
-#                 if dice >= 150 and dice <= 199:
-#                     snowing.append({"starttime": utime.ticks_ms(), "blue": True, "position": random.choice(range(100))})
-#                 tick = utime.ticks_ms()
-#             for i in range(100):
-#                 ws2812.pixels_set(i, (20, 20, 20))
-#             for effect in snowing:
-#                 # brightness = int(1 - abs((time.time() - effect["starttime"])*2-1)) * (255-20) + 20)
-
-
-
-
-#                 brightness = int(1 - abs((utime.ticks_diff(utime.ticks_ms(),effect["starttime"])/500.0 - 1)) * (255-20)+20)
-#                 if brightness >= 20:
-#                     if effect["blue"]:
-#                         ws2812.pixels_set(effect["position"], (20, brightness, brightness))
-#                     else:
-#                         ws2812.pixels_set(effect["position"], (brightness, brightness, brightness))
-#             # if snowing != [] and snowing[0]["starttime"] + 1 < time.time():
-#             if snowing != [] and utime.ticks_diff(utime.ticks_ms(), snowing[0]["starttime"]) > 1000:
-#                 snowing.pop(0)
-#             await ws2812.pixels_show()
-#     except uasyncio.CancelledError:
-#         pass
+async def xmas():
+    try:
+        print("snowing effect")
+        snowing = []
+        tick = utime.ticks_ms()
+        while True:
+            if utime.ticks_diff(utime.ticks_ms(), tick) > 100:
+                position = random.choice(range(ws2812.NUM_LEDS))
+                print(f"add twinkle at position {position}")
+                dice = random.randrange(1,200)
+                if dice >= 20 and dice <= 148:
+                    snowing.append({"starttime": utime.ticks_ms(), "blue": False, "position": position})
+                if dice >= 150 and dice <= 199:
+                    snowing.append({"starttime": utime.ticks_ms(), "blue": True, "position": position})
+                tick = utime.ticks_ms()
+            for i in range(ws2812.NUM_LEDS):
+                ws2812.pixels_set(i, (20, 20, 20))
+            for effect in snowing:
+                # brightness = int(1 - (abs((utime.ticks_diff(utime.ticks_ms(),effect["starttime"])/500.0 - 1)) * (255-20)+20))
+                brightness = int(20 + 235 * (utime.ticks_diff(utime.ticks_ms(),effect["starttime"])/500.0 - 1))
+                if brightness >= 20:
+                    if effect["blue"]:
+                        ws2812.pixels_set(effect["position"], (20, brightness, brightness))
+                    else:
+                        ws2812.pixels_set(effect["position"], (brightness, brightness, brightness))
+            # if snowing != [] and snowing[0]["starttime"] + 1 < time.time():
+            if snowing != [] and utime.ticks_diff(utime.ticks_ms(), snowing[0]["starttime"]) > 1000:
+                print ("removing a twinkle")
+                snowing.pop(0)
+            await ws2812.pixels_show()
+    except uasyncio.CancelledError:
+        pass
 
 
 async def led_flash():
@@ -173,7 +172,7 @@ async def main():
                 running_task.cancel()
                 await running_task
                 print("cancelled existing")
-            running_task = uasyncio.create_task(demo1())
+            running_task = uasyncio.create_task(xmas())
         if not button3.value() and utime.time() > pressed+debounce:
             print("button 3")
             pressed=utime.time()
