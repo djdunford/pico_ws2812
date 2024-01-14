@@ -37,11 +37,11 @@ async def blank():
         pass
 
 
-async def blue_green(milli_brightness:int=1000):
+async def blue_green(milli_brightness:int=1000, fade_in_ms=0):
     try:
         print(f"blue green cycle: brightness {milli_brightness}")
         color_range = list(range(85, 170, 1)) + list(range(169, 86, -1))
-        await ws2812.rainbow_cycle_2(0, color_range, 2592000, 100, 1.5, milli_brightness)
+        await ws2812.rainbow_cycle_2(0, color_range, 2592000, 100, 1.5, milli_brightness, fade_in_ms)
         print(f"blue green cycle ended: brightness {milli_brightness}")
     except uasyncio.CancelledError:
         pass
@@ -102,7 +102,7 @@ async def main():
                 running_task.cancel()
                 await running_task
                 print("cancelled existing")
-            running_task = uasyncio.create_task(blue_green(200))
+            running_task = uasyncio.create_task(blue_green(fade_in_ms=3000))
         await uasyncio.sleep(0.05)
 
 

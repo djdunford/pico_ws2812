@@ -78,13 +78,18 @@ def wheel(pos, milli_brightness:int=1000):
  
  
 @micropython.native
-async def rainbow_cycle_2(wait, color_range=list(range(255)), duration=10, speed=1, wavelength=1.0, milli_brightness=1000):
+async def rainbow_cycle_2(wait, color_range=list(range(255)), duration=10, speed=1, wavelength=1.0, milli_brightness=1000, fade_in_ms=0):
     start_time = utime.time()
     start_ticks = utime.ticks_ms()
     while utime.time() < start_time + duration:
-        hue_offset = int(utime.ticks_diff(start_ticks, utime.ticks_ms()) * speed / 1000)
+        ticks_elapsed = utime.ticks_diff(utime.ticks_ms(), start_ticks)
+        hue_offset = int(ticks_elapsed * speed / 1000)
         for i in range(NUM_LEDS):
             arr_offset = (int(hue_offset + (i * wavelength))) % len(color_range)
-            pixels_set(i, wheel(color_range[arr_offset], milli_brightness))
+            if ticks_elapsed < fade_in_ms and fade_in_ms > 0:
+                brightness = int(milli_brightness * ticks_elapsed / fade_in_ms)
+            else:
+                brightness = milli_brightness
+            pixels_set(i, wheel(color_range[arr_offset], brightness))
         await pixels_show()
         await uasyncio.sleep(wait)
