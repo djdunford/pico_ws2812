@@ -5,8 +5,8 @@ import uasyncio
 import utime
 
 # Configure the number of WS2812 LEDs.
-NUM_LEDS = 400
-PIN_NUM = 22
+NUM_LEDS = const(400)
+PIN_NUM = const(22)
 
 
 @rp2.asm_pio(sideset_init=rp2.PIO.OUT_LOW, out_shiftdir=rp2.PIO.SHIFT_LEFT, autopull=True, pull_thresh=24)
@@ -83,7 +83,7 @@ async def rainbow_cycle_2(wait, color_range=list(range(255)), duration=10, speed
     start_ticks = utime.ticks_ms()
     while utime.time() < start_time + duration:
         ticks_elapsed = utime.ticks_diff(utime.ticks_ms(), start_ticks)
-        hue_offset = int(ticks_elapsed * speed / 1000)
+        hue_offset = int(-ticks_elapsed * speed / 1000)
         for i in range(NUM_LEDS):
             arr_offset = (int(hue_offset + (i * wavelength))) % len(color_range)
             if ticks_elapsed < fade_in_ms and fade_in_ms > 0:
