@@ -45,19 +45,19 @@ async def pixels_show():
     sm.put(dimmer_ar, 8)
     await uasyncio.sleep_ms(10)
 
-
-def pixels_set(i, color):
+@micropython.native
+def pixels_set(i: int, color) -> None:
     ar[i] = (color[0]<<16) + (color[1]<<8) + color[2]
 
 
 @micropython.native
-def pixels_fill(color):
+def pixels_fill(color) -> None:
     for i in range(len(ar)):
         pixels_set(i, color)
 
 
 @micropython.native
-def wheel(pos, milli_brightness:int=1000):
+def wheel(pos: int, milli_brightness:int=1000):
     # Input a value 0 to 255 to get a color value.
     # The colours are a transition r - g - b - back to r.
     if pos < 0 or pos > 255:
