@@ -5,7 +5,7 @@ import uasyncio
 import utime
 
 # Configure the number of WS2812 LEDs.
-NUM_LEDS = 250
+NUM_LEDS = 400
 PIN_NUM = 22
 
 
@@ -34,6 +34,7 @@ sm.active(1)
 ar = array.array("I", [0 for _ in range(NUM_LEDS)])
 
 
+@micropython.native
 async def pixels_show():
     dimmer_ar = array.array("I", [0 for _ in range(NUM_LEDS)])
     for i,c in enumerate(ar):
@@ -49,19 +50,13 @@ def pixels_set(i, color):
     ar[i] = (color[0]<<16) + (color[1]<<8) + color[2]
 
 
+@micropython.native
 def pixels_fill(color):
     for i in range(len(ar)):
         pixels_set(i, color)
 
 
-async def color_chase(color, wait):
-    for i in range(NUM_LEDS):
-        pixels_set(i, color)
-        await uasyncio.sleep(wait)
-        await pixels_show()
-    await uasyncio.sleep(0.2)
- 
-
+@micropython.native
 def wheel(pos, milli_brightness:int=1000):
     # Input a value 0 to 255 to get a color value.
     # The colours are a transition r - g - b - back to r.
@@ -82,15 +77,7 @@ def wheel(pos, milli_brightness:int=1000):
     return (rising, 0, falling)
  
  
-async def rainbow_cycle(wait, color_range=range(255)):
-    for j in color_range:
-        for i in range(NUM_LEDS):
-            rc_index = (i * len(color_range) // NUM_LEDS) + j
-            pixels_set(i, wheel(rc_index & 255))
-        await pixels_show()
-        await uasyncio.sleep(wait)
-
-
+@micropython.native
 async def rainbow_cycle_2(wait, color_range=list(range(255)), duration=10, speed=1, wavelength=1.0, milli_brightness=1000):
     start_time = utime.time()
     start_ticks = utime.ticks_ms()

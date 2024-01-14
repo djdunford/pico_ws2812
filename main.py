@@ -25,6 +25,8 @@ led = machine.Pin(17, machine.Pin.OUT)
 
 debounce = 1
 
+machine.freq(200000000)
+
 
 async def blank():
     try:
