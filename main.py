@@ -102,7 +102,7 @@ async def main():
                 running_task.cancel()
                 await running_task
                 print("cancelled existing")
-            running_task = uasyncio.create_task(blue_green(fade_in_ms=3000))
+            running_task = uasyncio.create_task(blue_green(fade_in_ms=1500))
         await uasyncio.sleep(0.05)
 
 
