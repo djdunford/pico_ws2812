@@ -3,6 +3,7 @@ from machine import Pin
 import rp2
 import uasyncio
 import utime
+import random
 
 # Configure the number of WS2812 LEDs.
 NUM_LEDS = 400
@@ -88,3 +89,24 @@ async def rainbow_cycle_2(wait, color_range=list(range(255)), duration=10, speed
             pixels_set(i, wheel(color_range[arr_offset], milli_brightness))
         await pixels_show()
         await uasyncio.sleep(wait)
+
+@micropython.native
+async def enchanted_forest_base():
+    ticks = utime.ticks_ms()
+    twinkles = []
+    while True:
+        pixels_fill((0,255,0))
+        dice = random.randrange(0,50)
+        if utime.ticks_diff(utime.ticks_ms(), ticks) > 300:
+            twinkles.append({
+                "starttime": utime.ticks_ms(),
+                "position": dice,
+            })
+            ticks = utime.ticks_ms()
+        for twinkle in twinkles:
+            pixels_set(twinkle["position"], (255,255,255))
+        if len(twinkles) > 0:
+            if utime.ticks_diff(utime.ticks_ms(),twinkles[0]["starttime"]) > 700:
+                twinkles.pop(0)
+        await pixels_show()
+        await uasyncio.sleep(0)

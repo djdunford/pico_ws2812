@@ -47,6 +47,15 @@ async def blue_green(milli_brightness:int=1000):
         pass
 
 
+async def enchanted_forest_base():
+    try:
+        print("enchanted forest base")
+        await ws2812.enchanted_forest_base()
+        print("enchanted forest base ended")
+    except uasyncio.CancelledError:
+        pass
+
+
 async def led_flash():
     try:
         start_time = utime.time()
@@ -84,7 +93,7 @@ async def main():
                 running_task.cancel()
                 await running_task
                 print("cancelled existing")
-            running_task = uasyncio.create_task(blank())
+            running_task = uasyncio.create_task(enchanted_forest_base())
         if not button3.value() and utime.time() > pressed+debounce:
             print("button 3")
             pressed=utime.time()
