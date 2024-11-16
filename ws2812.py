@@ -92,21 +92,38 @@ async def rainbow_cycle_2(wait, color_range=list(range(255)), duration=10, speed
 
 @micropython.native
 async def enchanted_forest_base():
+
+    pause_fixed_ms = 150
+    pause_max_variable_ms = 50
+    twinkle_duration_ms = 400
+    base_green_component = 100
+
     ticks = utime.ticks_ms()
+    pause = random.randrange(pause_max_variable_ms)
     twinkles = []
     while True:
-        pixels_fill((0,255,0))
-        dice = random.randrange(0,50)
-        if utime.ticks_diff(utime.ticks_ms(), ticks) > 300:
+        pixels_fill((0,base_green_component,0))
+        dice = random.randrange(50)
+        while True:
+            existing_twinkles = filter(lambda item: item["position"] == dice, twinkles)
+            if all(False for _ in existing_twinkles):
+                break
+            dice = random.randrange(50)
+
+        if utime.ticks_diff(utime.ticks_ms(), ticks) > pause_fixed_ms + pause:
             twinkles.append({
                 "starttime": utime.ticks_ms(),
                 "position": dice,
             })
             ticks = utime.ticks_ms()
+            pause = random.randrange(pause_max_variable_ms)
         for twinkle in twinkles:
-            pixels_set(twinkle["position"], (255,255,255))
+            offset = utime.ticks_diff(utime.ticks_ms(),twinkle["starttime"])
+            red_blue_component = 255 - abs(((offset-twinkle_duration_ms) * 255) // twinkle_duration_ms)
+            green_component = 255 - abs(((offset-twinkle_duration_ms) * (255-base_green_component)) // twinkle_duration_ms)
+            pixels_set(twinkle["position"], (max(red_blue_component,0),max(green_component,base_green_component),max(red_blue_component,0)))
         if len(twinkles) > 0:
-            if utime.ticks_diff(utime.ticks_ms(),twinkles[0]["starttime"]) > 700:
+            if utime.ticks_diff(utime.ticks_ms(),twinkles[0]["starttime"]) > twinkle_duration_ms * 2:
                 twinkles.pop(0)
         await pixels_show()
         await uasyncio.sleep(0)
