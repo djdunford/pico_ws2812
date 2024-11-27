@@ -92,7 +92,6 @@ async def rainbow_cycle_2(wait, color_range=list(range(255)), duration=10, speed
 
 @micropython.native
 async def enchanted_forest_base():
-
     pause_fixed_ms = 150
     pause_max_variable_ms = 50
     twinkle_duration_ms = 400
@@ -127,3 +126,62 @@ async def enchanted_forest_base():
                 twinkles.pop(0)
         await pixels_show()
         await uasyncio.sleep(0)
+
+# @micropython.native
+# async def enchanted_forest_base():
+
+#     pause_fixed_ms = 150
+#     pause_max_variable_ms = 50
+#     twinkle_duration_ms = 400
+#     lower_base_green_component = 20
+#     upper_base_green_component = 140
+#     number_leds_half_period_length = 10
+
+#     ticks = utime.ticks_ms()
+#     pause = random.randrange(pause_max_variable_ms)
+#     twinkles = []
+#     print("Entering loop")
+
+#     # print("Setting green component base")
+#     # green_components = []
+#     # for led in range(NUM_LEDS):
+#     #     # green_component = ((upper_base_green_component - lower_base_green_component) * (led % (number_leds_half_period_length*2))) // number_leds_half_period_length
+#     #     # green_component = 100
+#     #     green_components.append(100)
+#     #     pixels_set(led,(0,100,0))
+#     #     print("Green component base complete")
+#     # print("Setting green component base - DONE")
+
+
+#     while True:
+#         await uasyncio.sleep(0)
+
+#         pixels_fill((0,100,0))
+
+#         dice = random.randrange(50)
+#         while True:
+#             existing_twinkles = filter(lambda item: item["position"] == dice, twinkles)
+#             if all(False for _ in existing_twinkles):
+#                 break
+#             dice = random.randrange(50)
+
+#             if utime.ticks_diff(utime.ticks_ms(), ticks) > pause_fixed_ms + pause:
+#                 twinkles.append({
+#                     "starttime": utime.ticks_ms(),
+#                     "position": dice,
+#                 })
+#                 ticks = utime.ticks_ms()
+#                 pause = random.randrange(pause_max_variable_ms)
+
+#             for twinkle in twinkles:
+#                 position = twinkle["position"]
+#                 offset = utime.ticks_diff(utime.ticks_ms(),twinkle["starttime"])
+#                 red_blue_component = 255 - abs(((offset-twinkle_duration_ms) * 255) // twinkle_duration_ms)
+#                 green_component = 255 - abs(((offset-twinkle_duration_ms) * (255-100)) // twinkle_duration_ms)
+#                 pixels_set(position, (max(red_blue_component,0),max(green_component,255-100),max(red_blue_component,0)))
+
+#             if len(twinkles) > 0:
+#                 if utime.ticks_diff(utime.ticks_ms(),twinkles[0]["starttime"]) > twinkle_duration_ms * 2:
+#                     twinkles.pop(0)
+
+#             await pixels_show()
