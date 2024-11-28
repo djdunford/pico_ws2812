@@ -100,7 +100,10 @@ async def enchanted_forest_base():
     # number_leds_half_period_length = 10
 
     green_components = array.array("I", [100 for _ in range(NUM_LEDS)])
-    # for led in range(NUM_LEDS):
+    print("Loop would be here")
+    for led in range(NUM_LEDS):
+        print(f"Looping {led}")
+        green_components[led] = 20
     #     # green_components[led] = ((upper_base_green_component - lower_base_green_component) * (led % (number_leds_half_period_length*2))) // number_leds_half_period_length
     print("Setting green component base - DONE")
     await uasyncio.sleep(0)
@@ -111,8 +114,8 @@ async def enchanted_forest_base():
     while True:
         pixels_fill((0,100,0))
 
-        # for led in range(NUM_LEDS):
-        #     pixels_set(led, (0,green_components[led],0))
+        for led in range(NUM_LEDS):
+            pixels_set(led, (0,green_components[led],0))
 
         dice = random.randrange(50)
         while True:
