@@ -104,6 +104,17 @@ async def led_flash():
         pass
 
 
+async def xmas_tree():
+    try:
+        print("xmas tree")
+        # color_range = list(range(0, 86, 1)) + list(range(85, 0, -1))
+        # await ws2812.rainbow_cycle_2(0, color_range, 2592000, 100, 1.5)
+        await ws2812.xmas_tree()
+        print("xmas tree ended")
+    except uasyncio.CancelledError:
+        pass
+
+
 async def main():
     pressed = utime.time()-debounce
     running_task = uasyncio.create_task(red_green())
@@ -127,7 +138,7 @@ async def main():
                 running_task.cancel()
                 await running_task
                 print("cancelled existing")
-            running_task = uasyncio.create_task(demo1())
+            running_task = uasyncio.create_task(xmas_tree())
         if not button3.value() and utime.time() > pressed+debounce:
             print("button 3")
             pressed=utime.time()
