@@ -139,8 +139,6 @@ async def xmas_tree():
 
         # add a twinkle
         if utime.ticks_diff(utime.ticks_ms(),tickms) > 10:
-        # if time.time() > tick + 0.01:
-        
             dice = random.randrange(1, 200)
             if dice >= 20 and dice <= 148:
                 effects["snowing"].append({"starttime": utime.ticks_ms(), "blue": False,
@@ -158,55 +156,40 @@ async def xmas_tree():
         print("trunk")
         for i in XMAS_PATTERNS.get("trunk"):
             pixels_set(i, (150, 75, 0))
-            # self._strip.setPixelColor(i, color(150, 75, 0))
 
         # base snowing effect
         print("base")
         for i in XMAS_PATTERNS.get("base"):
-            # self._strip.setPixelColor(i, color(20, 20, 20))
             pixels_set(i, (20, 20, 20))
 
         print("snowing")
         for effect in effects["snowing"]:
-            # brightness = int((1 - abs((time.time() - effect["starttime"]) * 2 - 1)) * (255 - 20) + 20)
             brightness = int((1 - abs((utime.ticks_diff(utime.ticks_ms(), effect["starttime"] // 1000)) * 2 - 1)) * (255-20) + 20)
             if brightness >= 20:
                 if effect["blue"]:
                     pixels_set(effect["position"], (20, brightness, brightness))
-                    # self._strip.setPixelColor(effect["position"], color(20, brightness, brightness))
                 else:
                     pixels_set(effect["position"], (brightness, brightness, brightness))
-                    # self._strip.setPixelColor(effect["position"],
-                    #                             color(brightness, brightness, brightness))
 
-        # star flashes yellow
-        # star_colour = twinkle_colours[int(time.time() - start_time) % len(twinkle_colours)]
-        # star_colour_comp = int(abs((time.time() - start_time) % 2 - 1) * 255)
         print("star")
         star_colour_comp = int(abs((utime.ticks_diff(utime.ticks_ms(), start_ticks) // 1000) % 2 - 1) * 255)
         for i in XMAS_PATTERNS.get("star"):
             pixels_set(i, (star_colour_comp, star_colour_comp, 0))
-            # self._strip.setPixelColor(i, color(star_colour_comp, star_colour_comp, 0))
 
         print("tree")
         # christmas tree lights
         for i in XMAS_PATTERNS.get("branches"):
             pixels_set(i, (0, 255, 0))
-            # self._strip.setPixelColor(i, color(0, 255, 0))
 
         print("twinkles")
         for effect in effects["twinkles"]:
             pixels_set(effect["position"], effect["colour"])
-            # self._strip.setPixelColor(effect["position"], effect["colour"])
 
-        # self._strip.show()
         await pixels_show()
         await uasyncio.sleep(0)
 
-        # if effects["snowing"] != [] and effects["snowing"][0]["starttime"] + 1 < time.time():
         if effects["snowing"] != [] and utime.ticks_diff(utime.ticks_ms(),effects["snowing"][0]["starttime"]) > 1000:
             effects["snowing"].pop(0)
 
-        # if effects["twinkles"] != [] and effects["twinkles"][0]["starttime"] + 1 < time.time():
         if effects["twinkles"] != [] and utime.ticks_diff(utime.ticks_ms(),effects["twinkles"][0]["starttime"]) > 1000:
             effects["twinkles"].pop(0)
