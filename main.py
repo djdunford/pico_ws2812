@@ -117,7 +117,7 @@ async def xmas_tree():
 
 async def main():
     pressed = utime.time()-debounce
-    running_task = uasyncio.create_task(red_green())
+    running_task = uasyncio.create_task(xmas_tree())
     flash = uasyncio.create_task(led_flash())
     print("flasher running")
     while True:

@@ -6,7 +6,7 @@ import utime
 import random
 
 # Configure the number of WS2812 LEDs.
-NUM_LEDS = 200
+NUM_LEDS = 250
 PIN_NUM = 22
 brightness = 1.0
 
@@ -124,11 +124,11 @@ async def xmas_tree():
     ]
 
     XMAS_PATTERNS = {
-        "trunk": [17, 18, 19, 37, 38, 39, 54, 55, 69, 70, 75, 90, 105],
-        "base": list(range(0, 17)) + list(range(125, 143)),
-        "star": list(range(71, 75)),
-        "branches": list(range(20, 37)) + list(range(40, 54)) + list(range(56, 69)) +
-                    list(range(76, 90)) + list(range(91, 105)) + list(range(106, 125))
+        "trunk": [67, 68, 69, 87, 88, 89, 104, 105, 119, 120, 125, 140, 155],
+        "base": list(range(0, 67)) + list(range(175, 243)),
+        "star": list(range(121, 125)),
+        "branches": list(range(70, 87)) + list(range(90, 104)) + list(range(106, 119)) +
+                    list(range(126, 140)) + list(range(141, 155)) + list(range(156, 175))
     }
 
     effects = {"snowing": [], "twinkles": []}
