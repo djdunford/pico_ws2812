@@ -140,10 +140,10 @@ async def xmas_tree():
         # add a twinkle
         if utime.ticks_diff(utime.ticks_ms(),tickms) > 10:
             dice = random.randrange(1, 200)
-            if dice >= 20 and dice <= 148:
+            if dice >= 20 and dice <= 60:
                 effects["snowing"].append({"starttime": utime.ticks_ms(), "blue": False,
                                             "position": random.choice(XMAS_PATTERNS["base"])})
-            elif dice >= 150 and dice <= 190:
+            elif dice >= 150 and dice <= 165:
                 effects["snowing"].append({"starttime": utime.ticks_ms(), "blue": True,
                                             "position": random.choice(XMAS_PATTERNS["base"])})
             elif dice >= 1 and dice <= 15:
@@ -153,35 +153,29 @@ async def xmas_tree():
             tickms = utime.ticks_ms()
 
         # trunk is static
-        print("trunk")
         for i in XMAS_PATTERNS.get("trunk"):
             pixels_set(i, (150, 75, 0))
 
         # base snowing effect
-        print("base")
         for i in XMAS_PATTERNS.get("base"):
             pixels_set(i, (20, 20, 20))
 
-        print("snowing")
         for effect in effects["snowing"]:
-            brightness = int((1 - abs((utime.ticks_diff(utime.ticks_ms(), effect["starttime"] // 1000)) * 2 - 1)) * (255-20) + 20)
+            brightness = int((1000 - abs(utime.ticks_diff(utime.ticks_ms(), effect["starttime"]) * 2 - 1000)) * (255-20) + 20000) // 1000
             if brightness >= 20:
                 if effect["blue"]:
                     pixels_set(effect["position"], (20, brightness, brightness))
                 else:
                     pixels_set(effect["position"], (brightness, brightness, brightness))
 
-        print("star")
-        star_colour_comp = int(abs((utime.ticks_diff(utime.ticks_ms(), start_ticks) // 1000) % 2 - 1) * 255)
+        star_colour_comp = int(abs(utime.ticks_diff(utime.ticks_ms(), start_ticks) % 2000 - 1000) * 255) // 1000
         for i in XMAS_PATTERNS.get("star"):
             pixels_set(i, (star_colour_comp, star_colour_comp, 0))
 
-        print("tree")
         # christmas tree lights
         for i in XMAS_PATTERNS.get("branches"):
             pixels_set(i, (0, 255, 0))
 
-        print("twinkles")
         for effect in effects["twinkles"]:
             pixels_set(effect["position"], effect["colour"])
 
