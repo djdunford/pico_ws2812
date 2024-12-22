@@ -4,6 +4,9 @@ import ws2812
 import uasyncio
 import machine
 import utime
+import LCD1602
+
+lcd = LCD1602.LCD1602(16,2)
 
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
@@ -70,7 +73,13 @@ async def led_flash():
         pass
 
 
+def screen():
+    lcd.setCursor(0, 0)
+    lcd.printout("Waveshare")
+    
+
 async def main():
+    screen()
     pressed = utime.time()-debounce
     running_task = None
     uasyncio.create_task(led_flash())
