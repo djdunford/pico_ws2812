@@ -33,6 +33,7 @@ machine.freq(180000000)
 
 async def blank():
     try:
+        lcd.print_lcd("ALL OFF")
         print("blanking")
         ws2812.pixels_fill(BLACK)
         await ws2812.pixels_show()
@@ -42,6 +43,7 @@ async def blank():
 
 async def blue_green(milli_brightness:int=1000):
     try:
+        lcd.print_lcd(f"Blue-Green {milli_brightness}")
         print(f"blue green cycle: brightness {milli_brightness}")
         color_range = list(range(85, 170, 1)) + list(range(169, 86, -1))
         await ws2812.rainbow_cycle_2(0, color_range, 2592000, 100, 1.5, milli_brightness)
@@ -52,6 +54,7 @@ async def blue_green(milli_brightness:int=1000):
 
 async def enchanted_forest_base():
     try:
+        lcd.print_lcd("Enchanted Forest")
         print("enchanted forest base")
         await ws2812.enchanted_forest_base()
         print("enchanted forest base ended")
@@ -73,13 +76,8 @@ async def led_flash():
         pass
 
 
-def screen():
-    lcd.setCursor(0, 0)
-    lcd.printout("Waveshare")
-    
-
 async def main():
-    screen()
+    lcd.print_lcd("Starting")
     pressed = utime.ticks_ms()
     running_task = None
     uasyncio.create_task(led_flash())

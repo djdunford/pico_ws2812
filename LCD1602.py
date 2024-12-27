@@ -84,7 +84,12 @@ class LCD1602:
   def display(self):
     self._showcontrol |= LCD_DISPLAYON 
     self.command(LCD_DISPLAYCONTROL | self._showcontrol)
- 
+
+  def print_lcd(self, message: str):
+    self.clear()
+    self.setCursor(0, 0)
+    self.printout(message)
+
   def begin(self,cols,lines):
     if (lines > 1):
         self._showfunction |= LCD_2LINE 
