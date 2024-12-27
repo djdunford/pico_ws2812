@@ -125,4 +125,9 @@ async def main():
 
 
 if __name__ == "__main__":
-    uasyncio.run(main())
+    try:
+        uasyncio.run(main())
+    except KeyboardInterrupt as err:
+        print("clearing screen and exiting")
+        lcd.clear()
+        
