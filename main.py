@@ -26,7 +26,7 @@ button4 = machine.Pin(18, machine.Pin.IN, machine.Pin.PULL_UP)
 print("Starting")
 led = machine.Pin(17, machine.Pin.OUT)
 
-debounce = 1
+debounce_ms = 200
 
 machine.freq(180000000)
 
@@ -80,41 +80,41 @@ def screen():
 
 async def main():
     screen()
-    pressed = utime.time()-debounce
+    pressed = utime.ticks_ms()
     running_task = None
     uasyncio.create_task(led_flash())
     print("flasher running")
     while True:
-        if not button1.value() and utime.time() > pressed+debounce:
+        if not button1.value() and utime.ticks_diff(utime.ticks_ms, pressed) > debounce_ms:
             print("button 1")
-            pressed=utime.time()
+            pressed=utime.ticks_ms()
             if running_task:
                 print("cancelling existing")
                 running_task.cancel()
                 await running_task
                 print("cancelled existing")
             running_task = uasyncio.create_task(blank())
-        if not button4.value() and utime.time() > pressed+debounce:
+        if not button4.value() and utime.ticks_diff(utime.ticks_ms, pressed) > debounce_ms:
             print("button 4")
-            pressed=utime.time()
+            pressed=utime.ticks_ms()
             if running_task:
                 print("cancelling existing")
                 running_task.cancel()
                 await running_task
                 print("cancelled existing")
             running_task = uasyncio.create_task(enchanted_forest_base())
-        if not button3.value() and utime.time() > pressed+debounce:
+        if not button3.value() and utime.ticks_diff(utime.ticks_ms, pressed) > debounce_ms:
             print("button 3")
-            pressed=utime.time()
+            pressed=utime.ticks_ms()
             if running_task:
                 print("cancelling existing")
                 running_task.cancel()
                 await running_task
                 print("cancelled existing")
             running_task = uasyncio.create_task(blue_green())
-        if not button2.value() and utime.time() > pressed+debounce:
+        if not button2.value() and utime.ticks_diff(utime.ticks_ms, pressed) > debounce_ms:
             print("button 2")
-            pressed=utime.time()
+            pressed=utime.ticks_ms()
             if running_task:
                 print("cancelling existing")
                 running_task.cancel()
