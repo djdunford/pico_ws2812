@@ -18,10 +18,11 @@ PURPLE = (180, 0, 255)
 WHITE = (255, 255, 255)
 COLORS = (BLACK, RED, YELLOW, GREEN, CYAN, BLUE, PURPLE, WHITE)
 
-button1 = machine.Pin(21, machine.Pin.IN, machine.Pin.PULL_UP)
-button2 = machine.Pin(20, machine.Pin.IN, machine.Pin.PULL_UP)
-button3 = machine.Pin(19, machine.Pin.IN, machine.Pin.PULL_UP)
-button4 = machine.Pin(18, machine.Pin.IN, machine.Pin.PULL_UP)
+buttons = []
+buttons.append(machine.Pin(21, machine.Pin.IN, machine.Pin.PULL_UP))
+buttons.append(machine.Pin(20, machine.Pin.IN, machine.Pin.PULL_UP))
+buttons.append(machine.Pin(19, machine.Pin.IN, machine.Pin.PULL_UP))
+buttons.append(machine.Pin(18, machine.Pin.IN, machine.Pin.PULL_UP))
 
 print("Starting")
 led = machine.Pin(17, machine.Pin.OUT)
@@ -64,6 +65,7 @@ async def enchanted_forest_base():
 
 async def led_flash():
     try:
+        print("flasher running")
         start_time = utime.time()
         while True:
             while utime.time() < start_time + 1:
@@ -78,12 +80,12 @@ async def led_flash():
 
 async def main():
     lcd.print_lcd("Starting")
+    print("Starting loop")
     pressed = utime.ticks_ms()
     running_task = None
     uasyncio.create_task(led_flash())
-    print("flasher running")
     while True:
-        if not button1.value() and utime.ticks_diff(utime.ticks_ms, pressed) > debounce_ms:
+        if not buttons[0].value() and utime.ticks_diff(utime.ticks_ms(), pressed) > debounce_ms:
             print("button 1")
             pressed=utime.ticks_ms()
             if running_task:
@@ -92,7 +94,7 @@ async def main():
                 await running_task
                 print("cancelled existing")
             running_task = uasyncio.create_task(blank())
-        if not button4.value() and utime.ticks_diff(utime.ticks_ms, pressed) > debounce_ms:
+        if not buttons[3].value() and utime.ticks_diff(utime.ticks_ms(), pressed) > debounce_ms:
             print("button 4")
             pressed=utime.ticks_ms()
             if running_task:
@@ -101,7 +103,7 @@ async def main():
                 await running_task
                 print("cancelled existing")
             running_task = uasyncio.create_task(enchanted_forest_base())
-        if not button3.value() and utime.ticks_diff(utime.ticks_ms, pressed) > debounce_ms:
+        if not buttons[2].value() and utime.ticks_diff(utime.ticks_ms(), pressed) > debounce_ms:
             print("button 3")
             pressed=utime.ticks_ms()
             if running_task:
@@ -110,7 +112,7 @@ async def main():
                 await running_task
                 print("cancelled existing")
             running_task = uasyncio.create_task(blue_green())
-        if not button2.value() and utime.ticks_diff(utime.ticks_ms, pressed) > debounce_ms:
+        if not buttons[1].value() and utime.ticks_diff(utime.ticks_ms(), pressed) > debounce_ms:
             print("button 2")
             pressed=utime.ticks_ms()
             if running_task:
