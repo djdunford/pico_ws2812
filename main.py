@@ -77,7 +77,7 @@ async def main():
     lcd.print_lcd("Starting")
     print("Starting loop")
     pressed = utime.ticks_ms()
-    running_task = None
+    running_task = uasyncio.create_task(blank())
     uasyncio.create_task(led_flash())
     while True:
 
@@ -118,6 +118,7 @@ if __name__ == "__main__":
     try:
         uasyncio.run(main())
     except KeyboardInterrupt as err:
+        uasyncio.run(blank())
         print("clearing screen and exiting")
-        lcd.clear()
+        lcd.print_lcd("")
         
