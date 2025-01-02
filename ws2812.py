@@ -1,13 +1,14 @@
 import array
 from machine import Pin
+from micropython import const
 import rp2
 import uasyncio
 import utime
 import random
 
 # Configure the number of WS2812 LEDs.
-NUM_LEDS = 400
-PIN_NUM = 22
+NUM_LEDS = const(400)
+PIN_NUM = const(22)
 
 
 @rp2.asm_pio(sideset_init=rp2.PIO.OUT_LOW, out_shiftdir=rp2.PIO.SHIFT_LEFT, autopull=True, pull_thresh=24)
