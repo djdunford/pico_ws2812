@@ -50,9 +50,8 @@ async def blue_green(milli_brightness:int=1000):
 
 async def enchanted_forest_base():
     try:
-        lcd.print_lcd("Enchanted Forest")
         print("enchanted forest base")
-        await ws2812.enchanted_forest_base(next_button_pressed)
+        await ws2812.enchanted_forest_base(lcd, next_button_pressed)
         print("enchanted forest base ended")
     except uasyncio.CancelledError:
         pass
