@@ -97,7 +97,7 @@ async def enchanted_forest_base(lcd, next_button_pressed):
     pause_fixed_ms = 150
     pause_max_variable_ms = 50
     twinkle_duration_ms = 400
-    brightnesses = [5, 25, 65, 125, 65, 25]
+    brightnesses = array.array("I", [5, 25, 65, 125, 65, 25])
 
     green_components = array.array("I", [0 for _ in range(NUM_LEDS)])
     for led in range(NUM_LEDS):
