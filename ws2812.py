@@ -91,7 +91,7 @@ async def rainbow_cycle_2(wait, color_range=list(range(255)), duration=10, speed
         await uasyncio.sleep(wait)
 
 @micropython.native
-async def enchanted_forest_base():
+async def enchanted_forest_base(next_button_pressed):
     pause_fixed_ms = 150
     pause_max_variable_ms = 50
     twinkle_duration_ms = 400
@@ -111,7 +111,7 @@ async def enchanted_forest_base():
     ticks = utime.ticks_ms()
     pause = random.randrange(pause_max_variable_ms)
     twinkles = []
-    while True:
+    while not next_button_pressed.is_set():
         pixels_fill((0,100,0))
 
         for led in range(NUM_LEDS):
@@ -141,6 +141,21 @@ async def enchanted_forest_base():
                 twinkles.pop(0)
         await pixels_show()
         await uasyncio.sleep(0)
+    
+    next_button_pressed.clear()
+    print("Next phase")
+
+    while not next_button_pressed.is_set():
+        await uasyncio.sleep(0)
+
+    next_button_pressed.clear()
+    print("Further phase")
+
+    while not next_button_pressed.is_set():
+        await uasyncio.sleep(0)
+
+    next_button_pressed.clear()
+    print("Done")
 
 # @micropython.native
 # async def enchanted_forest_base():

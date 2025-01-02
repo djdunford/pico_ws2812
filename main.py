@@ -57,7 +57,7 @@ async def enchanted_forest_base():
     try:
         lcd.print_lcd("Enchanted Forest")
         print("enchanted forest base")
-        await ws2812.enchanted_forest_base()
+        await ws2812.enchanted_forest_base(next_button_pressed)
         print("enchanted forest base ended")
     except uasyncio.CancelledError:
         pass
@@ -77,6 +77,7 @@ async def led_flash():
     except uasyncio.CancelledError:
         pass
 
+next_button_pressed = uasyncio.Event()
 
 async def main():
     lcd.print_lcd("Starting")
@@ -85,6 +86,8 @@ async def main():
     running_task = None
     uasyncio.create_task(led_flash())
     while True:
+
+        # Blank all lights
         if not buttons[0].value() and utime.ticks_diff(utime.ticks_ms(), pressed) > debounce_ms:
             print("button 1")
             pressed=utime.ticks_ms()
@@ -93,7 +96,10 @@ async def main():
                 running_task.cancel()
                 await running_task
                 print("cancelled existing")
+            next_button_pressed.clear()
             running_task = uasyncio.create_task(blank())
+
+        # start sequence
         if not buttons[3].value() and utime.ticks_diff(utime.ticks_ms(), pressed) > debounce_ms:
             print("button 4")
             pressed=utime.ticks_ms()
@@ -102,7 +108,15 @@ async def main():
                 running_task.cancel()
                 await running_task
                 print("cancelled existing")
+            next_button_pressed.clear()
             running_task = uasyncio.create_task(enchanted_forest_base())
+
+        # set Next event trigger
+        if not buttons[1].value() and utime.ticks_diff(utime.ticks_ms(), pressed) > debounce_ms:
+            print("next button pressed")
+            pressed=utime.ticks_ms()
+            next_button_pressed.set()
+
         await uasyncio.sleep(0)
 
 
