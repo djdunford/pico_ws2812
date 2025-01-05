@@ -88,6 +88,7 @@ async def rainbow_cycle_2(wait, color_range=list(range(255)), duration=10, speed
         await pixels_show()
         await uasyncio.sleep(wait)
 
+
 async def enchanted_forest_base(lcd, next_button_pressed):
     lcd.print_lcd("Enchanted Forest")
     lcd.setCursor(0,1)
@@ -137,7 +138,7 @@ async def enchanted_forest_base(lcd, next_button_pressed):
         if utime.ticks_diff(utime.ticks_ms(), ticks) > pause_fixed_ms + pause:
             twinkles.append({
                 "starttime": utime.ticks_ms(),
-                "position": dice,
+                "position": random.randrange(NUM_LEDS),
             })
             ticks = utime.ticks_ms()
             pause = random.randrange(pause_max_variable_ms)
