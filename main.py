@@ -22,7 +22,7 @@ buttons.append(machine.Pin(18, machine.Pin.IN, machine.Pin.PULL_UP))
 print("Starting")
 led = machine.Pin(LED_PIN, machine.Pin.OUT)
 
-debounce_ms = const(200)
+debounce_ms = const(300)
 
 machine.freq(180000000)
 

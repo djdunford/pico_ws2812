@@ -89,39 +89,19 @@ async def rainbow_cycle_2(wait, color_range=list(range(255)), duration=10, speed
         await uasyncio.sleep(wait)
 
 
-async def enchanted_forest_base(lcd, next_button_pressed):
-    lcd.print_lcd("Enchanted Forest")
-    lcd.setCursor(0,1)
-    lcd.printout("FADE IN")
-    await uasyncio.sleep(0)
+brightnesses = array.array("I", [5, 25, 65, 125, 65, 25])
+green_components = array.array("I", [0 for _ in range(NUM_LEDS)])
+for led in range(NUM_LEDS):
+    green_components[led] = brightnesses[led % 6]
+
+
+async def twinkling(next_button_pressed, twinkles, ticks, speed):
+
     pause_fixed_ms = 150
     pause_max_variable_ms = 50
     twinkle_duration_ms = 400
-
-    brightnesses = array.array("I", [5, 25, 65, 125, 65, 25])
-
-    green_components = array.array("I", [0 for _ in range(NUM_LEDS)])
-    for led in range(NUM_LEDS):
-        green_components[led] = brightnesses[led % 6]
-
     # TODO: make pause a feature of each twinkle
     pause = random.randrange(pause_max_variable_ms)
-
-    ticks = utime.ticks_ms()
-    diff = 0
-
-    while diff < 2000:
-        diff = utime.ticks_diff(utime.ticks_ms(), ticks)
-        for led in range(NUM_LEDS):
-            pixels_set(led, (0,(green_components[led] * diff) // 2000,0))
-        await pixels_show()
-        await uasyncio.sleep(0)
-
-    # TODO: Make LCD write async or use the other core
-    lcd.print_lcd("Enchanted Forest")
-    lcd.setCursor(0,1)
-    lcd.printout("SLOW")
-    twinkles = []
 
     while not next_button_pressed.is_set():
 
@@ -153,7 +133,32 @@ async def enchanted_forest_base(lcd, next_button_pressed):
                 twinkles.pop(0)
         await pixels_show()
         await uasyncio.sleep(0)
-    
+
+
+async def enchanted_forest_base(lcd, next_button_pressed):
+    lcd.print_lcd("Enchanted Forest")
+    lcd.setCursor(0,1)
+    lcd.printout("FADE IN")
+    await uasyncio.sleep(0)
+
+    ticks = utime.ticks_ms()
+    diff = 0
+
+    while diff < 2000:
+        diff = utime.ticks_diff(utime.ticks_ms(), ticks)
+        for led in range(NUM_LEDS):
+            pixels_set(led, (0,(green_components[led] * diff) // 2000,0))
+        await pixels_show()
+        await uasyncio.sleep(0)
+
+    # TODO: Make LCD write async or use the other core
+    lcd.print_lcd("Enchanted Forest")
+    lcd.setCursor(0,1)
+    lcd.printout("SLOW")
+    twinkles = []
+
+    await twinkling(next_button_pressed, twinkles, ticks, 10)
+
     next_button_pressed.clear()
     print("FREEZE")
     lcd.print_lcd("FREEZE")
