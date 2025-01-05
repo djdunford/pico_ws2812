@@ -95,11 +95,17 @@ for led in range(NUM_LEDS):
     green_components[led] = brightnesses[led % 6]
 
 
-async def twinkling(next_button_pressed, twinkles, ticks, speed):
+async def twinkling(next_button_pressed, twinkles, ticks, fast=False):
 
-    pause_fixed_ms = 150
-    pause_max_variable_ms = 50
-    twinkle_duration_ms = 400
+    if not fast:
+        pause_fixed_ms = 150
+        pause_max_variable_ms = 50
+        twinkle_duration_ms = 400
+    else:
+        pause_fixed_ms = 50
+        pause_max_variable_ms = 1
+        twinkle_duration_ms = 200
+
     # TODO: make pause a feature of each twinkle
     pause = random.randrange(pause_max_variable_ms)
 
@@ -158,12 +164,12 @@ async def enchanted_forest_base(lcd, next_button_pressed):
     lcd.print_lcd("Enchanted Forest")
     lcd.setCursor(0,1)
     lcd.printout("SLOW")
-    await twinkling(next_button_pressed, twinkles, ticks, 10)
+    await twinkling(next_button_pressed, twinkles, ticks)
 
     next_button_pressed.clear()
     print("Further phase")
     lcd.print_lcd("CEST LA VIE")
-    await twinkling(next_button_pressed, twinkles, ticks, 10)
+    await twinkling(next_button_pressed, twinkles, ticks, True)
 
     next_button_pressed.clear()
     print("FREEZE")
@@ -174,9 +180,7 @@ async def enchanted_forest_base(lcd, next_button_pressed):
     next_button_pressed.clear()
     print("Further phase")
     lcd.print_lcd("RESTART")
-
-    while not next_button_pressed.is_set():
-        await uasyncio.sleep(0)
+    await twinkling(next_button_pressed, twinkles, ticks)
 
     next_button_pressed.clear()
     print("Done")
