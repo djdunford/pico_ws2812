@@ -89,10 +89,6 @@ async def rainbow_cycle_2(wait, color_range=list(range(255)), duration=10, speed
         await uasyncio.sleep(wait)
 
 
-brightnesses = array.array("I", [5, 25, 65, 125, 65, 25])
-green_components = array.array("I", [0 for _ in range(NUM_LEDS)])
-for led in range(NUM_LEDS):
-    green_components[led] = brightnesses[led % 6]
 
 
 async def twinkling(next_button_pressed, twinkles, ticks, fast=False):
@@ -106,12 +102,28 @@ async def twinkling(next_button_pressed, twinkles, ticks, fast=False):
         pause_max_variable_ms = 1
         twinkle_duration_ms = 200
 
+    start_ticks = ticks
     # TODO: make pause a feature of each twinkle
     pause = random.randrange(pause_max_variable_ms)
 
     while not next_button_pressed.is_set():
 
+        period_ms = const(1500)
+        diff = utime.ticks_diff(utime.ticks_ms(), start_ticks) % period_ms
+        # led_offset = (diff // 400) % 6
+        brightnesses = array.array("I", [
+            (10 + diff) % period_ms,
+            (30 + diff) % period_ms,
+            (70 + diff) % period_ms,
+            (130 + diff) % period_ms,
+            (70 + diff) % period_ms,
+            (10 + diff) % period_ms,
+            ])
+        green_components = array.array("I", [0 for _ in range(NUM_LEDS)])
         for led in range(NUM_LEDS):
+            green_components[led] = brightnesses[led % 6]
+
+        # for led in range(NUM_LEDS):
             pixels_set(led, (0,green_components[led],0))
 
         # select a LED and make sure it isn't already twinkling
@@ -154,7 +166,8 @@ async def enchanted_forest_base(lcd, next_button_pressed):
     while diff < 2000:
         diff = utime.ticks_diff(utime.ticks_ms(), ticks)
         for led in range(NUM_LEDS):
-            pixels_set(led, (0,(green_components[led] * diff) // 2000,0))
+            # pixels_set(led, (0,(green_components[led] * diff) // 2000,0))
+            pixels_set(led, (0,(100 * diff) // 2000,0))
         await pixels_show()
         await uasyncio.sleep(0)
 
