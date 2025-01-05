@@ -108,17 +108,18 @@ async def twinkling(next_button_pressed, twinkles, ticks, speed):
         for led in range(NUM_LEDS):
             pixels_set(led, (0,green_components[led],0))
 
-        dice = random.randrange(50)
+        # select a LED and make sure it isn't already twinkling
+        dice = random.randrange(NUM_LEDS)
         while True:
             existing_twinkles = filter(lambda item: item["position"] == dice, twinkles)
             if all(False for _ in existing_twinkles):
                 break
-            dice = random.randrange(50)
+            dice = random.randrange(NUM_LEDS)
 
         if utime.ticks_diff(utime.ticks_ms(), ticks) > pause_fixed_ms + pause:
             twinkles.append({
                 "starttime": utime.ticks_ms(),
-                "position": random.randrange(NUM_LEDS),
+                "position": dice,
             })
             ticks = utime.ticks_ms()
             pause = random.randrange(pause_max_variable_ms)
@@ -151,18 +152,22 @@ async def enchanted_forest_base(lcd, next_button_pressed):
         await pixels_show()
         await uasyncio.sleep(0)
 
+    twinkles = []
+
     # TODO: Make LCD write async or use the other core
     lcd.print_lcd("Enchanted Forest")
     lcd.setCursor(0,1)
     lcd.printout("SLOW")
-    twinkles = []
+    await twinkling(next_button_pressed, twinkles, ticks, 10)
 
+    next_button_pressed.clear()
+    print("Further phase")
+    lcd.print_lcd("CEST LA VIE")
     await twinkling(next_button_pressed, twinkles, ticks, 10)
 
     next_button_pressed.clear()
     print("FREEZE")
     lcd.print_lcd("FREEZE")
-
     while not next_button_pressed.is_set():
         await uasyncio.sleep(0)
 
