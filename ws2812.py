@@ -95,16 +95,54 @@ for led in range(NUM_LEDS):
     brightness[led] = brightnesses[led % 6]
 
 
-async def twinkling(next_button_pressed, twinkles, ticks, fast=False, cherry=False):
+async def fast_sequence(next_button_pressed, twinkles, ticks):
+    period_ms = 1200
+    twinkle_duration_ms = 500
+    red = 0
+    green = 255
+    blue = 0
 
-    if not fast:
-        pause_fixed_ms = 150
-        pause_max_variable_ms = 50
-        twinkle_duration_ms = 400
-    else:
-        pause_fixed_ms = 50
-        pause_max_variable_ms = 1
-        twinkle_duration_ms = 200
+    next_led = 5
+
+    while not next_button_pressed.is_set():
+        for led in range(NUM_LEDS):
+            pixels_set(led, (
+                (red*brightness[led]) // 255,
+                (green*brightness[led]) // 255,
+                (blue*brightness[led]) // 255
+            ))
+
+        if utime.ticks_diff(utime.ticks_ms(), ticks) >= period_ms:
+            for i in range(0, NUM_LEDS, 40):
+                twinkles.append({
+                    "starttime": utime.ticks_ms(),
+                    "position": next_led + i,
+                })
+                twinkles.append({
+                    "starttime": utime.ticks_ms(),
+                    "position": next_led + i + 2,
+                })
+            ticks = utime.ticks_ms()
+            next_led = (next_led + 10) % 40
+
+        for twinkle in twinkles:
+            offset = utime.ticks_diff(utime.ticks_ms(),twinkle["starttime"])
+            red_blue_component = 255 - abs(((offset-twinkle_duration_ms) * 255) // twinkle_duration_ms)
+            green_component = 255 - abs(((offset-twinkle_duration_ms) * (255-brightness[twinkle["position"]])) // twinkle_duration_ms)
+            pixels_set(twinkle["position"], (max(red_blue_component,0),max(green_component,brightness[twinkle["position"]]),max(red_blue_component,0)))
+        
+        while (len(twinkles) > 0) and (utime.ticks_diff(utime.ticks_ms(),twinkles[0]["starttime"]) > twinkle_duration_ms * 2):
+            twinkles.pop(0)
+        
+        await pixels_show()
+        await uasyncio.sleep(0)
+
+
+async def twinkling(next_button_pressed, twinkles, ticks, cherry=False):
+
+    pause_fixed_ms = 100
+    pause_max_variable_ms = 600
+    twinkle_duration_ms = 700
 
     if not cherry:
         red = 0
@@ -148,9 +186,10 @@ async def twinkling(next_button_pressed, twinkles, ticks, fast=False, cherry=Fal
             red_blue_component = 255 - abs(((offset-twinkle_duration_ms) * 255) // twinkle_duration_ms)
             green_component = 255 - abs(((offset-twinkle_duration_ms) * (255-brightness[twinkle["position"]])) // twinkle_duration_ms)
             pixels_set(twinkle["position"], (max(red_blue_component,0),max(green_component,brightness[twinkle["position"]]),max(red_blue_component,0)))
-        if len(twinkles) > 0:
-            if utime.ticks_diff(utime.ticks_ms(),twinkles[0]["starttime"]) > twinkle_duration_ms * 2:
-                twinkles.pop(0)
+        
+        while (len(twinkles) > 0) and (utime.ticks_diff(utime.ticks_ms(),twinkles[0]["starttime"]) > twinkle_duration_ms * 2):
+            twinkles.pop(0)
+        
         await pixels_show()
         await uasyncio.sleep(0)
 
@@ -207,7 +246,7 @@ async def enchanted_forest_base(lcd, next_button_pressed):
     lcd.print_lcd("Enchanted Forest")
     lcd.setCursor(0,1)
     lcd.printout("CEST LA VIE")
-    await twinkling(next_button_pressed, twinkles, ticks, True)
+    await fast_sequence(next_button_pressed, twinkles, ticks)
 
     next_button_pressed.clear()
     lcd.print_lcd("Enchanted Forest")
@@ -242,7 +281,7 @@ async def enchanted_forest_base(lcd, next_button_pressed):
     lcd.print_lcd("Enchanted Forest")
     lcd.setCursor(0,1)
     lcd.printout("CHERRY BLOSSOM")
-    await twinkling(next_button_pressed, twinkles, ticks, False, True)
+    await twinkling(next_button_pressed, twinkles, ticks, cherry=True)
 
     next_button_pressed.clear()
     lcd.print_lcd("Enchanted Forest")
