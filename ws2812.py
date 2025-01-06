@@ -253,6 +253,7 @@ async def enchanted_forest_base(lcd, next_button_pressed):
     lcd.setCursor(0,1)
     lcd.printout("FREEZE")
 
+    # set fixed Freeze position
     red = 0
     green = 255
     blue = 0
@@ -269,7 +270,15 @@ async def enchanted_forest_base(lcd, next_button_pressed):
     while not next_button_pressed.is_set():
         await uasyncio.sleep(0)
 
+    # setup twinkles array for fadeout
+    ticks = utime.ticks_ms() - 700
     twinkles = []
+    for led in range(0, NUM_LEDS, 10):
+        twinkles.append({
+            "starttime": ticks,
+            "position": led,
+        })
+    ticks = utime.ticks_ms()
 
     next_button_pressed.clear()
     lcd.print_lcd("Enchanted Forest")
