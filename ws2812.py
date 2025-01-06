@@ -204,22 +204,50 @@ async def enchanted_forest_base(lcd, next_button_pressed):
     await twinkling(next_button_pressed, twinkles, ticks)
 
     next_button_pressed.clear()
-    lcd.print_lcd("CEST LA VIE")
+    lcd.print_lcd("Enchanted Forest")
+    lcd.setCursor(0,1)
+    lcd.printout("CEST LA VIE")
     await twinkling(next_button_pressed, twinkles, ticks, True)
 
     next_button_pressed.clear()
-    lcd.print_lcd("FREEZE")
+    lcd.print_lcd("Enchanted Forest")
+    lcd.setCursor(0,1)
+    lcd.printout("FREEZE")
+
+    red = 0
+    green = 255
+    blue = 0
+    for led in range(NUM_LEDS):
+        if (led % 10) != 0:
+            pixels_set(led, (
+                (brightness[led] * red) // 255,
+                (brightness[led] * green) // 255,
+                (brightness[led] * blue) // 255
+            ))
+        else:
+            pixels_set(led, (255, 255, 255))
+    await pixels_show()
     while not next_button_pressed.is_set():
         await uasyncio.sleep(0)
 
+    twinkles = []
+
     next_button_pressed.clear()
-    lcd.print_lcd("RESTART SLOW")
+    lcd.print_lcd("Enchanted Forest")
+    lcd.setCursor(0,1)
+    lcd.printout("RESTART SLOW")
     await twinkling(next_button_pressed, twinkles, ticks)
 
     next_button_pressed.clear()
-    lcd.print_lcd("CHERRY BLOSSOM")
+    lcd.print_lcd("Enchanted Forest")
+    lcd.setCursor(0,1)
+    lcd.printout("CHERRY BLOSSOM")
     await twinkling(next_button_pressed, twinkles, ticks, False, True)
 
     next_button_pressed.clear()
-    lcd.print_lcd("FADE OUT")
+    lcd.print_lcd("Enchanted Forest")
+    lcd.setCursor(0,1)
+    lcd.printout("FADEOUT")
     await fadeout(twinkles, ticks)
+
+    lcd.print_lcd("OFF")
