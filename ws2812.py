@@ -155,6 +155,30 @@ async def twinkling(next_button_pressed, twinkles, ticks, fast=False, cherry=Fal
         await uasyncio.sleep(0)
 
 
+async def fadeout(twinkles, ticks):
+
+    FADEOUT_TIME_MS = 800
+    red = 232
+    green = 50
+    blue = 135
+
+    fade_start_ticks = utime.ticks_ms()
+    fade = max(FADEOUT_TIME_MS - utime.ticks_diff(utime.ticks_ms(), fade_start_ticks), 0)
+    while fade > 0:
+        for led in range(NUM_LEDS):
+            pixels_set(led, (
+                (red*brightness[led]*fade) // (255*FADEOUT_TIME_MS),
+                (green*brightness[led]*fade) // (255*FADEOUT_TIME_MS),
+                (blue*brightness[led]*fade) // (255*FADEOUT_TIME_MS)
+            ))
+        await pixels_show()
+        await uasyncio.sleep(0)
+        fade = max(FADEOUT_TIME_MS - utime.ticks_diff(utime.ticks_ms(), fade_start_ticks), 0)
+
+    pixels_fill((0,0,0)) 
+    await pixels_show()
+
+
 async def enchanted_forest_base(lcd, next_button_pressed):
     lcd.print_lcd("Enchanted Forest")
     lcd.setCursor(0,1)
@@ -198,4 +222,4 @@ async def enchanted_forest_base(lcd, next_button_pressed):
 
     next_button_pressed.clear()
     lcd.print_lcd("FADE OUT")
-    # await fadeout(twinkles, ticks)
+    await fadeout(twinkles, ticks)
