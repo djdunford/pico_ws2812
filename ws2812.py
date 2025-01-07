@@ -287,6 +287,9 @@ async def enchanted_forest_base(lcd, next_button_pressed):
     await twinkling(next_button_pressed, twinkles, ticks)
 
     # fade from greens to cherry blossom
+    lcd.print_lcd("Enchanted Forest")
+    lcd.setCursor(0,1)
+    lcd.printout("FADE TO CHERRY")
     cherry_red = 232
     cherry_green = 50
     cherry_blue = 135
