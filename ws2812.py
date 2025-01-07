@@ -286,6 +286,27 @@ async def enchanted_forest_base(lcd, next_button_pressed):
     lcd.printout("RESTART SLOW")
     await twinkling(next_button_pressed, twinkles, ticks)
 
+    # fade from greens to cherry blossom
+    cherry_red = 232
+    cherry_green = 50
+    cherry_blue = 135
+    fade_start_ticks = utime.ticks_ms()
+    FADE_DURATION = const(2000)
+    fade = min(utime.ticks_diff(utime.ticks_ms(), fade_start_ticks), FADE_DURATION)
+    while fade < FADE_DURATION:
+
+        for led in range(NUM_LEDS):
+            pixels_set(led, (
+                ((red * (FADE_DURATION - fade)) + (cherry_red * fade)) * brightness[led] // (255 * FADE_DURATION),
+                ((green * (FADE_DURATION - fade)) + (cherry_green * fade)) * brightness[led] // (255 * FADE_DURATION),
+                ((blue * (FADE_DURATION - fade)) + (cherry_blue * fade)) * brightness[led] // (255 * FADE_DURATION),
+            ))
+        await pixels_show()
+        await uasyncio.sleep(0)
+        fade = min(utime.ticks_diff(utime.ticks_ms(), fade_start_ticks), FADE_DURATION)
+
+    twinkles = []
+
     next_button_pressed.clear()
     lcd.print_lcd("Enchanted Forest")
     lcd.setCursor(0,1)
