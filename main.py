@@ -7,7 +7,19 @@ import utime
 import LCD1602
 from micropython import const
 
-lcd = LCD1602.LCD1602(16,2)
+# mock class should the LCD not be detected
+class NoLcd:
+    def print_lcd(self, _m):
+        return
+    def setCursor(self, _x, _y):
+        return
+    def printout(self, _m):
+        return
+
+try:
+    lcd = LCD1602.LCD1602(16,2)
+except OSError:
+    lcd = NoLcd()
 
 BLACK = (0, 0, 0)
 
