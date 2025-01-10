@@ -97,8 +97,8 @@ for led in range(NUM_LEDS):
 
 
 async def fast_sequence(next_button_pressed, twinkles, ticks):
-    period_ms = 1200
-    twinkle_duration_ms = 500
+    period_ms = 900
+    twinkle_duration_ms = 300
     red = 0
     green = 255
     blue = 0
