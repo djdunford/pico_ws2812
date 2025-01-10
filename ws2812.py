@@ -7,10 +7,37 @@ import utime
 import random
 import gc
 
+PIN_NUM = const(22)
+
 # Configure the number of WS2812 LEDs.
 NUM_LEDS = const(300)  # must be a multiple of GROUP_SIZE
 GROUP_SIZE = const(30)
-PIN_NUM = const(22)
+
+BRIGHTNESSES = array.array("I", [30, 100, 200, 255, 200, 100])
+
+FOREST_RED = const(0)
+FOREST_GREEN = const(255)
+FOREST_BLUE = const(0)
+
+CHERRY_RED = const(232)
+CHERRY_GREEN = const(50)
+CHERRY_BLUE = const(135)
+
+FAST_SEQUENCE_PERIOD_MS = const(900)
+FAST_SEQUENCE_TWINKLE_DURATION_MS = const(300)
+
+TWINKLING_PERIOD_FIXED_MS = const(50)
+TWINKLING_PERIOD_MAX_VARIABLE_MS = const(200)
+TWINKLING_DURATION_MS = const(700)  # this is the half-period
+
+FADE_IN_DURATION_MS = const(2000)
+FADEOUT_TIME_MS = const(800)
+FADE_TO_CHERRY_DURATION = const(2000)
+
+
+brightness = array.array("I", [0 for _ in range(NUM_LEDS)])
+for led in range(NUM_LEDS):
+    brightness[led] = BRIGHTNESSES[led % 6]
 
 
 @rp2.asm_pio(sideset_init=rp2.PIO.OUT_LOW, out_shiftdir=rp2.PIO.SHIFT_LEFT, autopull=True, pull_thresh=24)
@@ -90,18 +117,10 @@ async def rainbow_cycle_2(wait, color_range=list(range(255)), duration=10, speed
         await uasyncio.sleep(wait)
 
 
-brightnesses = array.array("I", [30, 100, 200, 255, 200, 100])
-brightness = array.array("I", [0 for _ in range(NUM_LEDS)])
-for led in range(NUM_LEDS):
-    brightness[led] = brightnesses[led % 6]
-
-
 async def fast_sequence(next_button_pressed, twinkles, ticks):
-    period_ms = 900
-    twinkle_duration_ms = 300
-    red = 0
-    green = 255
-    blue = 0
+    red = FOREST_RED
+    green = FOREST_GREEN
+    blue = FOREST_BLUE
 
     next_led = 5
 
@@ -113,7 +132,7 @@ async def fast_sequence(next_button_pressed, twinkles, ticks):
                 (blue*brightness[led]) // 255
             ))
 
-        if utime.ticks_diff(utime.ticks_ms(), ticks) >= period_ms:
+        if utime.ticks_diff(utime.ticks_ms(), ticks) >= FAST_SEQUENCE_PERIOD_MS:
             for i in range(0, NUM_LEDS, GROUP_SIZE):
                 twinkles.append({
                     "starttime": utime.ticks_ms(),
@@ -128,11 +147,11 @@ async def fast_sequence(next_button_pressed, twinkles, ticks):
 
         for twinkle in twinkles:
             offset = utime.ticks_diff(utime.ticks_ms(),twinkle["starttime"])
-            red_blue_component = 255 - abs(((offset-twinkle_duration_ms) * 255) // twinkle_duration_ms)
-            green_component = 255 - abs(((offset-twinkle_duration_ms) * (255-brightness[twinkle["position"]])) // twinkle_duration_ms)
+            red_blue_component = 255 - abs(((offset-FAST_SEQUENCE_TWINKLE_DURATION_MS) * 255) // FAST_SEQUENCE_TWINKLE_DURATION_MS)
+            green_component = 255 - abs(((offset-FAST_SEQUENCE_TWINKLE_DURATION_MS) * (255-brightness[twinkle["position"]])) // FAST_SEQUENCE_TWINKLE_DURATION_MS)
             pixels_set(twinkle["position"], (max(red_blue_component,0),max(green_component,brightness[twinkle["position"]]),max(red_blue_component,0)))
         
-        while (len(twinkles) > 0) and (utime.ticks_diff(utime.ticks_ms(),twinkles[0]["starttime"]) > twinkle_duration_ms * 2):
+        while (len(twinkles) > 0) and (utime.ticks_diff(utime.ticks_ms(),twinkles[0]["starttime"]) > FAST_SEQUENCE_TWINKLE_DURATION_MS * 2):
             twinkles.pop(0)
         
         await pixels_show()
@@ -140,22 +159,17 @@ async def fast_sequence(next_button_pressed, twinkles, ticks):
 
 
 async def twinkling(next_button_pressed, twinkles, ticks, cherry=False):
-
-    pause_fixed_ms = 50
-    pause_max_variable_ms = 200
-    twinkle_duration_ms = 700
-
     if not cherry:
-        red = 0
-        green = 255
-        blue = 0
+        red = FOREST_RED
+        green = FOREST_GREEN
+        blue = FOREST_BLUE
     else:
-        red = 232
-        green = 50
-        blue = 135
+        red = CHERRY_RED
+        green = CHERRY_GREEN
+        blue = CHERRY_BLUE
 
     # TODO: make pause a feature of each twinkle
-    pause = random.randrange(pause_max_variable_ms)
+    pause = random.randrange(TWINKLING_PERIOD_MAX_VARIABLE_MS)
 
     while not next_button_pressed.is_set():
 
@@ -174,22 +188,22 @@ async def twinkling(next_button_pressed, twinkles, ticks, cherry=False):
                 break
             dice = random.randrange(NUM_LEDS)
 
-        if utime.ticks_diff(utime.ticks_ms(), ticks) > pause_fixed_ms + pause:
+        if utime.ticks_diff(utime.ticks_ms(), ticks) > TWINKLING_PERIOD_FIXED_MS + pause:
             twinkles.append({
                 "starttime": utime.ticks_ms(),
                 "position": dice,
             })
             ticks = utime.ticks_ms()
-            pause = random.randrange(pause_max_variable_ms)
+            pause = random.randrange(TWINKLING_PERIOD_MAX_VARIABLE_MS)
 
         for twinkle in twinkles:
             offset = utime.ticks_diff(utime.ticks_ms(),twinkle["starttime"])
-            red_component = 255 - abs(((offset-twinkle_duration_ms) * (255-(red*brightness[twinkle["position"]]//255))) // twinkle_duration_ms)
-            green_component = 255 - abs(((offset-twinkle_duration_ms) * (255-(green*brightness[twinkle["position"]]//255))) // twinkle_duration_ms)
-            blue_component = 255 - abs(((offset-twinkle_duration_ms) * (255-(blue*brightness[twinkle["position"]]//255))) // twinkle_duration_ms)
+            red_component = 255 - abs(((offset-TWINKLING_DURATION_MS) * (255-(red*brightness[twinkle["position"]]//255))) // TWINKLING_DURATION_MS)
+            green_component = 255 - abs(((offset-TWINKLING_DURATION_MS) * (255-(green*brightness[twinkle["position"]]//255))) // TWINKLING_DURATION_MS)
+            blue_component = 255 - abs(((offset-TWINKLING_DURATION_MS) * (255-(blue*brightness[twinkle["position"]]//255))) // TWINKLING_DURATION_MS)
             pixels_set(twinkle["position"], (max(red_component,0),max(green_component,0),max(blue_component,0)))
         
-        while (len(twinkles) > 0) and (utime.ticks_diff(utime.ticks_ms(),twinkles[0]["starttime"]) > twinkle_duration_ms * 2):
+        while (len(twinkles) > 0) and (utime.ticks_diff(utime.ticks_ms(),twinkles[0]["starttime"]) > TWINKLING_DURATION_MS * 2):
             twinkles.pop(0)
         
         await pixels_show()
@@ -198,10 +212,9 @@ async def twinkling(next_button_pressed, twinkles, ticks, cherry=False):
 
 async def fadeout(twinkles, ticks):
 
-    FADEOUT_TIME_MS = 800
-    red = 232
-    green = 50
-    blue = 135
+    red = CHERRY_RED
+    green = CHERRY_GREEN
+    blue = CHERRY_BLUE
 
     fade_start_ticks = utime.ticks_ms()
     fade = max(FADEOUT_TIME_MS - utime.ticks_diff(utime.ticks_ms(), fade_start_ticks), 0)
@@ -229,7 +242,6 @@ async def enchanted_forest_base(lcd, next_button_pressed):
     ticks = utime.ticks_ms()
     diff = 0
 
-    FADE_IN_DURATION_MS = const(2000)
     while diff < FADE_IN_DURATION_MS:
         diff = utime.ticks_diff(utime.ticks_ms(), ticks)
         for led in range(NUM_LEDS):
@@ -261,9 +273,9 @@ async def enchanted_forest_base(lcd, next_button_pressed):
     lcd.printout("FREEZE")
 
     # set fixed Freeze position
-    red = 0
-    green = 255
-    blue = 0
+    red = FOREST_RED
+    green = FOREST_GREEN
+    blue = FOREST_BLUE
     for led in range(NUM_LEDS):
         if (led % 10) != 0:
             pixels_set(led, (
@@ -278,7 +290,7 @@ async def enchanted_forest_base(lcd, next_button_pressed):
         await uasyncio.sleep(0)
 
     # setup twinkles array for fadeout
-    ticks = utime.ticks_ms() - 700
+    ticks = utime.ticks_ms() - TWINKLING_DURATION_MS
     twinkles = []
     for led in range(0, NUM_LEDS, 10):
         twinkles.append({
@@ -297,11 +309,10 @@ async def enchanted_forest_base(lcd, next_button_pressed):
     lcd.print_lcd("Enchanted Forest")
     lcd.setCursor(0,1)
     lcd.printout("FADE TO CHERRY")
-    cherry_red = 232
-    cherry_green = 50
-    cherry_blue = 135
+    cherry_red = CHERRY_RED
+    cherry_green = CHERRY_GREEN
+    cherry_blue = CHERRY_BLUE
     fade_start_ticks = utime.ticks_ms()
-    FADE_TO_CHERRY_DURATION = const(2000)
     fade = min(utime.ticks_diff(utime.ticks_ms(), fade_start_ticks), FADE_TO_CHERRY_DURATION)
     while fade < FADE_TO_CHERRY_DURATION:
 
