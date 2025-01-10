@@ -228,10 +228,15 @@ async def enchanted_forest_base(lcd, next_button_pressed):
     ticks = utime.ticks_ms()
     diff = 0
 
-    while diff < 2000:
+    FADE_IN_DURATION_MS = const(2000)
+    while diff < FADE_IN_DURATION_MS:
         diff = utime.ticks_diff(utime.ticks_ms(), ticks)
         for led in range(NUM_LEDS):
-            pixels_set(led, (0,(brightness[led] * diff) // 2000,0))
+            pixels_set(led, (
+                0,
+                min((brightness[led] * diff) // FADE_IN_DURATION_MS, 255)
+                ,0
+            ))
         await pixels_show()
         await uasyncio.sleep(0)
 
