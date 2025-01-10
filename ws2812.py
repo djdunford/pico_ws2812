@@ -141,8 +141,8 @@ async def fast_sequence(next_button_pressed, twinkles, ticks):
 
 async def twinkling(next_button_pressed, twinkles, ticks, cherry=False):
 
-    pause_fixed_ms = 100
-    pause_max_variable_ms = 600
+    pause_fixed_ms = 50
+    pause_max_variable_ms = 200
     twinkle_duration_ms = 700
 
     if not cherry:
