@@ -8,7 +8,8 @@ import random
 import gc
 
 # Configure the number of WS2812 LEDs.
-NUM_LEDS = const(400)
+NUM_LEDS = const(300)  # must be a multiple of GROUP_SIZE
+GROUP_SIZE = const(30)
 PIN_NUM = const(22)
 
 
@@ -113,7 +114,7 @@ async def fast_sequence(next_button_pressed, twinkles, ticks):
             ))
 
         if utime.ticks_diff(utime.ticks_ms(), ticks) >= period_ms:
-            for i in range(0, NUM_LEDS, 40):
+            for i in range(0, NUM_LEDS, GROUP_SIZE):
                 twinkles.append({
                     "starttime": utime.ticks_ms(),
                     "position": next_led + i,
@@ -123,7 +124,7 @@ async def fast_sequence(next_button_pressed, twinkles, ticks):
                     "position": next_led + i + 2,
                 })
             ticks = utime.ticks_ms()
-            next_led = (next_led + 10) % 40
+            next_led = (next_led + 10) % GROUP_SIZE
 
         for twinkle in twinkles:
             offset = utime.ticks_diff(utime.ticks_ms(),twinkle["starttime"])
