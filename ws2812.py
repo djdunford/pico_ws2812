@@ -300,19 +300,19 @@ async def enchanted_forest_base(lcd, next_button_pressed):
     cherry_green = 50
     cherry_blue = 135
     fade_start_ticks = utime.ticks_ms()
-    FADE_DURATION = const(2000)
-    fade = min(utime.ticks_diff(utime.ticks_ms(), fade_start_ticks), FADE_DURATION)
-    while fade < FADE_DURATION:
+    FADE_TO_CHERRY_DURATION = const(2000)
+    fade = min(utime.ticks_diff(utime.ticks_ms(), fade_start_ticks), FADE_TO_CHERRY_DURATION)
+    while fade < FADE_TO_CHERRY_DURATION:
 
         for led in range(NUM_LEDS):
             pixels_set(led, (
-                ((red * (FADE_DURATION - fade)) + (cherry_red * fade)) * brightness[led] // (255 * FADE_DURATION),
-                ((green * (FADE_DURATION - fade)) + (cherry_green * fade)) * brightness[led] // (255 * FADE_DURATION),
-                ((blue * (FADE_DURATION - fade)) + (cherry_blue * fade)) * brightness[led] // (255 * FADE_DURATION),
+                ((red * (FADE_TO_CHERRY_DURATION - fade)) + (cherry_red * fade)) * brightness[led] // (255 * FADE_TO_CHERRY_DURATION),
+                ((green * (FADE_TO_CHERRY_DURATION - fade)) + (cherry_green * fade)) * brightness[led] // (255 * FADE_TO_CHERRY_DURATION),
+                ((blue * (FADE_TO_CHERRY_DURATION - fade)) + (cherry_blue * fade)) * brightness[led] // (255 * FADE_TO_CHERRY_DURATION),
             ))
         await pixels_show()
         await uasyncio.sleep(0)
-        fade = min(utime.ticks_diff(utime.ticks_ms(), fade_start_ticks), FADE_DURATION)
+        fade = min(utime.ticks_diff(utime.ticks_ms(), fade_start_ticks), FADE_TO_CHERRY_DURATION)
 
     twinkles = []
 
