@@ -184,9 +184,10 @@ async def twinkling(next_button_pressed, twinkles, ticks, cherry=False):
 
         for twinkle in twinkles:
             offset = utime.ticks_diff(utime.ticks_ms(),twinkle["starttime"])
-            red_blue_component = 255 - abs(((offset-twinkle_duration_ms) * 255) // twinkle_duration_ms)
-            green_component = 255 - abs(((offset-twinkle_duration_ms) * (255-brightness[twinkle["position"]])) // twinkle_duration_ms)
-            pixels_set(twinkle["position"], (max(red_blue_component,0),max(green_component,brightness[twinkle["position"]]),max(red_blue_component,0)))
+            red_component = 255 - abs(((offset-twinkle_duration_ms) * (255-(red*brightness[twinkle["position"]]//255))) // twinkle_duration_ms)
+            green_component = 255 - abs(((offset-twinkle_duration_ms) * (255-(green*brightness[twinkle["position"]]//255))) // twinkle_duration_ms)
+            blue_component = 255 - abs(((offset-twinkle_duration_ms) * (255-(blue*brightness[twinkle["position"]]//255))) // twinkle_duration_ms)
+            pixels_set(twinkle["position"], (max(red_component,0),max(green_component,0),max(blue_component,0)))
         
         while (len(twinkles) > 0) and (utime.ticks_diff(utime.ticks_ms(),twinkles[0]["starttime"]) > twinkle_duration_ms * 2):
             twinkles.pop(0)
