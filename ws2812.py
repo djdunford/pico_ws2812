@@ -89,7 +89,7 @@ async def rainbow_cycle_2(wait, color_range=list(range(255)), duration=10, speed
         await uasyncio.sleep(wait)
 
 
-brightnesses = array.array("I", [20, 50, 130, 200, 130, 50])
+brightnesses = array.array("I", [30, 100, 200, 255, 200, 100])
 brightness = array.array("I", [0 for _ in range(NUM_LEDS)])
 for led in range(NUM_LEDS):
     brightness[led] = brightnesses[led % 6]
