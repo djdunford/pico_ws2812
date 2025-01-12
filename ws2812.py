@@ -357,6 +357,9 @@ async def twinkling_only(lcd, next_button_pressed):
     twinkles = []
     pause = random.randrange(TWINKLING_PERIOD_MAX_VARIABLE_MS)
 
+    pixels_fill((0,0,0))
+    await pixels_show()
+
     while True:
         dice = random.randrange(NUM_LEDS)
 
