@@ -360,7 +360,7 @@ async def twinkling_only(lcd, next_button_pressed):
     pixels_fill((0,0,0))
     await pixels_show()
 
-    while True:
+    while not next_button_pressed.is_set():
         dice = random.randrange(NUM_LEDS)
 
         while True:
@@ -389,3 +389,39 @@ async def twinkling_only(lcd, next_button_pressed):
         
         await pixels_show()
         await uasyncio.sleep(0)
+
+    next_button_pressed.clear()
+    lcd.print_lcd("Twinkling only")
+    lcd.setCursor(0,1)
+    lcd.printout("CEST LA VIE")
+
+    next_led = 5
+    while not next_button_pressed.is_set():
+        if utime.ticks_diff(utime.ticks_ms(), ticks) >= FAST_SEQUENCE_PERIOD_MS:
+            for i in range(0, NUM_LEDS, GROUP_SIZE):
+                twinkles.append({
+                    "starttime": utime.ticks_ms(),
+                    "position": next_led + i,
+                })
+                twinkles.append({
+                    "starttime": utime.ticks_ms(),
+                    "position": next_led + i + 2,
+                })
+            ticks = utime.ticks_ms()
+            next_led = (next_led + 10) % GROUP_SIZE
+
+        for twinkle in twinkles:
+            offset = utime.ticks_diff(utime.ticks_ms(), twinkle["starttime"])
+            red_component = TWINKLE_RED - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_RED) // TWINKLING_DURATION_MS)
+            green_component = TWINKLE_GREEN - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_GREEN) // TWINKLING_DURATION_MS)
+            blue_component = TWINKLE_BLUE - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_BLUE) // TWINKLING_DURATION_MS)
+            pixels_set(twinkle["position"], (max(red_component,0),max(green_component,0),max(blue_component,0)))
+        
+        while (len(twinkles) > 0) and (utime.ticks_diff(utime.ticks_ms(),twinkles[0]["starttime"]) > TWINKLING_DURATION_MS * 2):
+            twinkles.pop(0)
+        
+        await pixels_show()
+        await uasyncio.sleep(0)
+
+    next_button_pressed.clear()
+
