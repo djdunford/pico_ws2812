@@ -69,6 +69,15 @@ async def enchanted_forest_base():
         pass
 
 
+async def twinkling_only():
+    try:
+        print("twinkling only")
+        await ws2812.twinkling_only(lcd, next_button_pressed)
+        print("twinkling only ended")
+    except uasyncio.CancelledError:
+        pass
+
+
 async def led_flash():
     try:
         print("flasher running")
@@ -122,6 +131,17 @@ async def main():
             print("next button pressed")
             pressed=utime.ticks_ms()
             next_button_pressed.set()
+
+        if not buttons[2].value() and utime.ticks_diff(utime.ticks_ms(), pressed) > debounce_ms:
+            print("button 3")
+            pressed=utime.ticks_ms()
+            if running_task:
+                print("cancelling existing")
+                running_task.cancel()
+                await running_task
+                print("cancelled existing")
+            next_button_pressed.clear()
+            running_task = uasyncio.create_task(twinkling_only())
 
         await uasyncio.sleep(0)
 
