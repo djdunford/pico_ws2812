@@ -27,8 +27,8 @@ TWINKLE_RED = 255
 TWINKLE_GREEN = 255
 TWINKLE_BLUE = 255
 
-FAST_SEQUENCE_PERIOD_MS = const(900)
-FAST_SEQUENCE_TWINKLE_DURATION_MS = const(300)
+FAST_SEQUENCE_PERIOD_MS = const(750)
+FAST_SEQUENCE_TWINKLE_DURATION_MS = const(200)
 
 TWINKLING_PERIOD_FIXED_MS = const(20)
 TWINKLING_PERIOD_MAX_VARIABLE_MS = const(100)
@@ -424,4 +424,60 @@ async def twinkling_only(lcd, next_button_pressed):
         await uasyncio.sleep(0)
 
     next_button_pressed.clear()
+    lcd.print_lcd("Twinkling only")
+    lcd.setCursor(0,1)
+    lcd.printout("RESTART TWINKLE")
+
+    while not next_button_pressed.is_set():
+        dice = random.randrange(NUM_LEDS)
+
+        while True:
+            existing_twinkles = filter(lambda item: item["position"] == dice, twinkles)
+            if all(False for _ in existing_twinkles):
+                break
+            dice = random.randrange(NUM_LEDS)
+
+        if utime.ticks_diff(utime.ticks_ms(), ticks) > TWINKLING_PERIOD_FIXED_MS + pause:
+            twinkles.append({
+                "starttime": utime.ticks_ms(),
+                "position": dice,
+            })
+            ticks = utime.ticks_ms()
+            pause = random.randrange(TWINKLING_PERIOD_MAX_VARIABLE_MS)
+
+        for twinkle in twinkles:
+            offset = utime.ticks_diff(utime.ticks_ms(), twinkle["starttime"])
+            red_component = TWINKLE_RED - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_RED) // TWINKLING_DURATION_MS)
+            green_component = TWINKLE_GREEN - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_GREEN) // TWINKLING_DURATION_MS)
+            blue_component = TWINKLE_BLUE - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_BLUE) // TWINKLING_DURATION_MS)
+            pixels_set(twinkle["position"], (max(red_component,0),max(green_component,0),max(blue_component,0)))
+        
+        while (len(twinkles) > 0) and (utime.ticks_diff(utime.ticks_ms(),twinkles[0]["starttime"]) > TWINKLING_DURATION_MS * 2):
+            twinkles.pop(0)
+        
+        await pixels_show()
+        await uasyncio.sleep(0)
+
+    next_button_pressed.clear()
+    lcd.print_lcd("Twinkling only")
+    lcd.setCursor(0,1)
+    lcd.printout("FADEOUT")
+
+    while len(twinkles) > 0:
+        for twinkle in twinkles:
+            offset = utime.ticks_diff(utime.ticks_ms(), twinkle["starttime"])
+            red_component = TWINKLE_RED - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_RED) // TWINKLING_DURATION_MS)
+            green_component = TWINKLE_GREEN - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_GREEN) // TWINKLING_DURATION_MS)
+            blue_component = TWINKLE_BLUE - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_BLUE) // TWINKLING_DURATION_MS)
+            pixels_set(twinkle["position"], (max(red_component,0),max(green_component,0),max(blue_component,0)))
+        
+        while (len(twinkles) > 0) and (utime.ticks_diff(utime.ticks_ms(),twinkles[0]["starttime"]) > TWINKLING_DURATION_MS * 2):
+            twinkles.pop(0)
+        
+        await pixels_show()
+        await uasyncio.sleep(0)
+
+    pixels_fill((0,0,0))
+    await pixels_show()
+    lcd.print_lcd("OFF")
 
