@@ -24,6 +24,7 @@ except OSError:
 BLACK = (0, 0, 0)
 
 LED_PIN = const(17)
+LED_DUTY_CYCLE = const(5000)  # PWM rate, out of 65535
 
 buttons = []
 buttons.append(machine.Pin(21, machine.Pin.IN, machine.Pin.PULL_UP))
@@ -32,7 +33,9 @@ buttons.append(machine.Pin(19, machine.Pin.IN, machine.Pin.PULL_UP))
 buttons.append(machine.Pin(18, machine.Pin.IN, machine.Pin.PULL_UP))
 
 print("Starting")
-led = machine.Pin(LED_PIN, machine.Pin.OUT)
+# led = machine.Pin(LED_PIN, machine.Pin.OUT)
+led = machine.PWM(machine.Pin(LED_PIN, machine.Pin.OUT))
+led.freq(5000)
 
 debounce_ms = const(1000)
 
@@ -85,9 +88,9 @@ async def led_flash():
         while True:
             while utime.time() < start_time + 1:
                 await uasyncio.sleep(0.05)
-            led.value(1)
+            led.duty_u16(LED_DUTY_CYCLE)
             await uasyncio.sleep(0.02)
-            led.value(0)
+            led.duty_u16(0)
             start_time += 3
     except uasyncio.CancelledError:
         pass
@@ -155,4 +158,3 @@ if __name__ == "__main__":
         lcd.print_lcd("")
         utime.sleep(3)
         print("exiting")
-        
