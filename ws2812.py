@@ -434,6 +434,33 @@ async def twinkling_only(lcd, next_button_pressed):
     next_button_pressed.clear()
     lcd.print_lcd("Twinkling only")
     lcd.setCursor(0,1)
+    lcd.printout("FREEZE")
+
+    for led in range(NUM_LEDS):
+        if (led % 10) == 0:
+            pixels_set(led, (
+                TWINKLE_RED,
+                TWINKLE_GREEN,
+                TWINKLE_BLUE
+            ))
+        else:
+            pixels_set(led, (0,0,0))
+    await pixels_show()
+    while not next_button_pressed.is_set():
+        await uasyncio.sleep(0)
+
+    ticks = utime.ticks_ms() - TWINKLING_DURATION_MS
+    twinkles = []
+    for led in range(0, NUM_LEDS, 10):
+        twinkles.append({
+            "starttime": ticks,
+            "position": led,
+        })
+    ticks = utime.ticks_ms()
+
+    next_button_pressed.clear()
+    lcd.print_lcd("Twinkling only")
+    lcd.setCursor(0,1)
     lcd.printout("RESTART TWINKLE")
 
     while not next_button_pressed.is_set():
