@@ -149,8 +149,10 @@ async def main():
 if __name__ == "__main__":
     try:
         uasyncio.run(main())
-    except KeyboardInterrupt as err:
+    except KeyboardInterrupt:
         uasyncio.run(blank())
-        print("clearing screen and exiting")
+        print("clearing screen")
         lcd.print_lcd("")
+        utime.sleep(3)
+        print("exiting")
         
