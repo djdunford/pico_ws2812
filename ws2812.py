@@ -379,7 +379,7 @@ async def twinkling_only(lcd, next_button_pressed):
 
         if utime.ticks_diff(utime.ticks_ms(), ticks) > TWINKLING_PERIOD_FIXED_MS + pause:
             twinkles.append({
-                "starttime": utime.ticks_ms(),
+                "starttime": utime.ticks_ms() - TWINKLING_DURATION_MS // 4,
                 "position": dice,
             })
             ticks = utime.ticks_ms()
@@ -408,11 +408,11 @@ async def twinkling_only(lcd, next_button_pressed):
         if utime.ticks_diff(utime.ticks_ms(), ticks) >= FAST_SEQUENCE_PERIOD_MS:
             for i in range(0, NUM_LEDS, GROUP_SIZE):
                 twinkles.append({
-                    "starttime": utime.ticks_ms(),
+                    "starttime": utime.ticks_ms() - TWINKLING_DURATION_MS // 4,
                     "position": next_led + i,
                 })
                 twinkles.append({
-                    "starttime": utime.ticks_ms(),
+                    "starttime": utime.ticks_ms() - TWINKLING_DURATION_MS // 4,
                     "position": next_led + i + 2,
                 })
             ticks = utime.ticks_ms()
@@ -447,7 +447,7 @@ async def twinkling_only(lcd, next_button_pressed):
 
         if utime.ticks_diff(utime.ticks_ms(), ticks) > TWINKLING_PERIOD_FIXED_MS + pause:
             twinkles.append({
-                "starttime": utime.ticks_ms(),
+                "starttime": utime.ticks_ms() - TWINKLING_DURATION_MS // 4,
                 "position": dice,
             })
             ticks = utime.ticks_ms()
