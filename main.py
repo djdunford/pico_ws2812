@@ -119,15 +119,9 @@ async def main():
 
         # start sequence
         if not buttons[3].value() and utime.ticks_diff(utime.ticks_ms(), pressed) > debounce_ms:
-            print("button 4")
+            print("button 4 - switch colour")
             pressed=utime.ticks_ms()
-            if running_task:
-                print("cancelling existing")
-                running_task.cancel()
-                await running_task
-                print("cancelled existing")
-            next_button_pressed.clear()
-            running_task = uasyncio.create_task(enchanted_forest_base())
+            ws2812.TWINKLE_COLOUR = (ws2812.TWINKLE_COLOUR + 1) % len(ws2812.TWINKLE_COLOURS_RED)
 
         # set Next event trigger
         if not buttons[1].value() and utime.ticks_diff(utime.ticks_ms(), pressed) > debounce_ms:
