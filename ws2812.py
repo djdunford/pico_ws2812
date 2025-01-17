@@ -23,18 +23,6 @@ CHERRY_RED = const(208)
 CHERRY_GREEN = const(45)
 CHERRY_BLUE = const(121)
 
-# WHITE_TWINKLE_RED = 255
-# WHITE_TWINKLE_GREEN = 255
-# WHITE_TWINKLE_BLUE = 255
-
-TWINKLE_RED = const(255)  # bright cherry
-TWINKLE_GREEN = const(54)  # bright cherry
-TWINKLE_BLUE = const(158)  # bright cherry
-
-# CHERRY_TWINKLE_RED = const(255)
-# CHERRY_TWINKLE_GREEN = const(230)
-# CHERRY_TWINKLE_BLUE = const(0)
-
 FAST_SEQUENCE_PERIOD_MS = const(750)
 FAST_SEQUENCE_TWINKLE_DURATION_MS = const(200)
 
@@ -46,6 +34,10 @@ FADE_IN_DURATION_MS = const(2000)
 FADEOUT_TIME_MS = const(800)
 FADE_TO_CHERRY_DURATION = const(2000)
 
+TWINKLE_COLOURS_RED = [255, 255, 255]
+TWINKLE_COLOURS_GREEN = [255, 54, 230]
+TWINKLE_COLOURS_BLUE = [255, 158, 0]
+TWINKLE_COLOUR = 1
 
 brightness = array.array("I", [0 for _ in range(NUM_LEDS)])
 for led in range(NUM_LEDS):
@@ -387,9 +379,9 @@ async def twinkling_only(lcd, next_button_pressed):
 
         for twinkle in twinkles:
             offset = utime.ticks_diff(utime.ticks_ms(), twinkle["starttime"])
-            red_component = TWINKLE_RED - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_RED) // TWINKLING_DURATION_MS)
-            green_component = TWINKLE_GREEN - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_GREEN) // TWINKLING_DURATION_MS)
-            blue_component = TWINKLE_BLUE - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_BLUE) // TWINKLING_DURATION_MS)
+            red_component = TWINKLE_COLOURS_RED[TWINKLE_COLOUR] - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_COLOURS_RED[TWINKLE_COLOUR]) // TWINKLING_DURATION_MS)
+            green_component = TWINKLE_COLOURS_GREEN[TWINKLE_COLOUR] - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_COLOURS_GREEN[TWINKLE_COLOUR]) // TWINKLING_DURATION_MS)
+            blue_component = TWINKLE_COLOURS_BLUE[TWINKLE_COLOUR] - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_COLOURS_BLUE[TWINKLE_COLOUR]) // TWINKLING_DURATION_MS)
             pixels_set(twinkle["position"], (max(red_component,0),max(green_component,0),max(blue_component,0)))
         
         while (len(twinkles) > 0) and (utime.ticks_diff(utime.ticks_ms(),twinkles[0]["starttime"]) > TWINKLING_DURATION_MS * 2):
@@ -420,9 +412,9 @@ async def twinkling_only(lcd, next_button_pressed):
 
         for twinkle in twinkles:
             offset = utime.ticks_diff(utime.ticks_ms(), twinkle["starttime"])
-            red_component = TWINKLE_RED - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_RED) // TWINKLING_DURATION_MS)
-            green_component = TWINKLE_GREEN - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_GREEN) // TWINKLING_DURATION_MS)
-            blue_component = TWINKLE_BLUE - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_BLUE) // TWINKLING_DURATION_MS)
+            red_component = TWINKLE_COLOURS_RED[TWINKLE_COLOUR] - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_COLOURS_RED[TWINKLE_COLOUR]) // TWINKLING_DURATION_MS)
+            green_component = TWINKLE_COLOURS_GREEN[TWINKLE_COLOUR] - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_COLOURS_GREEN[TWINKLE_COLOUR]) // TWINKLING_DURATION_MS)
+            blue_component = TWINKLE_COLOURS_BLUE[TWINKLE_COLOUR] - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_COLOURS_BLUE[TWINKLE_COLOUR]) // TWINKLING_DURATION_MS)
             pixels_set(twinkle["position"], (max(red_component,0),max(green_component,0),max(blue_component,0)))
         
         while (len(twinkles) > 0) and (utime.ticks_diff(utime.ticks_ms(),twinkles[0]["starttime"]) > TWINKLING_DURATION_MS * 2):
@@ -439,9 +431,9 @@ async def twinkling_only(lcd, next_button_pressed):
     for led in range(NUM_LEDS):
         if (led % 10) == 0:
             pixels_set(led, (
-                TWINKLE_RED,
-                TWINKLE_GREEN,
-                TWINKLE_BLUE
+                TWINKLE_COLOURS_RED[TWINKLE_COLOUR],
+                TWINKLE_COLOURS_GREEN[TWINKLE_COLOUR],
+                TWINKLE_COLOURS_BLUE[TWINKLE_COLOUR]
             ))
         else:
             pixels_set(led, (0,0,0))
@@ -482,9 +474,9 @@ async def twinkling_only(lcd, next_button_pressed):
 
         for twinkle in twinkles:
             offset = utime.ticks_diff(utime.ticks_ms(), twinkle["starttime"])
-            red_component = TWINKLE_RED - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_RED) // TWINKLING_DURATION_MS)
-            green_component = TWINKLE_GREEN - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_GREEN) // TWINKLING_DURATION_MS)
-            blue_component = TWINKLE_BLUE - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_BLUE) // TWINKLING_DURATION_MS)
+            red_component = TWINKLE_COLOURS_RED[TWINKLE_COLOUR] - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_COLOURS_RED[TWINKLE_COLOUR]) // TWINKLING_DURATION_MS)
+            green_component = TWINKLE_COLOURS_GREEN[TWINKLE_COLOUR] - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_COLOURS_GREEN[TWINKLE_COLOUR]) // TWINKLING_DURATION_MS)
+            blue_component = TWINKLE_COLOURS_BLUE[TWINKLE_COLOUR] - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_COLOURS_BLUE[TWINKLE_COLOUR]) // TWINKLING_DURATION_MS)
             pixels_set(twinkle["position"], (max(red_component,0),max(green_component,0),max(blue_component,0)))
         
         while (len(twinkles) > 0) and (utime.ticks_diff(utime.ticks_ms(),twinkles[0]["starttime"]) > TWINKLING_DURATION_MS * 2):
@@ -501,9 +493,9 @@ async def twinkling_only(lcd, next_button_pressed):
     while len(twinkles) > 0:
         for twinkle in twinkles:
             offset = utime.ticks_diff(utime.ticks_ms(), twinkle["starttime"])
-            red_component = TWINKLE_RED - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_RED) // TWINKLING_DURATION_MS)
-            green_component = TWINKLE_GREEN - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_GREEN) // TWINKLING_DURATION_MS)
-            blue_component = TWINKLE_BLUE - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_BLUE) // TWINKLING_DURATION_MS)
+            red_component = TWINKLE_COLOURS_RED[TWINKLE_COLOUR] - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_COLOURS_RED[TWINKLE_COLOUR]) // TWINKLING_DURATION_MS)
+            green_component = TWINKLE_COLOURS_GREEN[TWINKLE_COLOUR] - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_COLOURS_GREEN[TWINKLE_COLOUR]) // TWINKLING_DURATION_MS)
+            blue_component = TWINKLE_COLOURS_BLUE[TWINKLE_COLOUR] - abs(((offset-TWINKLING_DURATION_MS) * TWINKLE_COLOURS_BLUE[TWINKLE_COLOUR]) // TWINKLING_DURATION_MS)
             pixels_set(twinkle["position"], (max(red_component,0),max(green_component,0),max(blue_component,0)))
         
         while (len(twinkles) > 0) and (utime.ticks_diff(utime.ticks_ms(),twinkles[0]["starttime"]) > TWINKLING_DURATION_MS * 2):
