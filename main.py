@@ -117,18 +117,19 @@ async def main():
             next_button_pressed.clear()
             running_task = uasyncio.create_task(blank())
 
-        # start sequence
-        if not buttons[3].value() and utime.ticks_diff(utime.ticks_ms(), pressed) > debounce_ms:
+        # Change colour
+        if not buttons[1].value() and utime.ticks_diff(utime.ticks_ms(), pressed) > debounce_ms:
             print("button 4 - switch colour")
             pressed=utime.ticks_ms()
             ws2812.TWINKLE_COLOUR = (ws2812.TWINKLE_COLOUR + 1) % len(ws2812.TWINKLE_COLOURS_RED)
 
         # set Next event trigger
-        if not buttons[1].value() and utime.ticks_diff(utime.ticks_ms(), pressed) > debounce_ms:
+        if not buttons[3].value() and utime.ticks_diff(utime.ticks_ms(), pressed) > debounce_ms:
             print("next button pressed")
             pressed=utime.ticks_ms()
             next_button_pressed.set()
 
+        # Start sequence
         if not buttons[2].value() and utime.ticks_diff(utime.ticks_ms(), pressed) > debounce_ms:
             print("button 3")
             pressed=utime.ticks_ms()
