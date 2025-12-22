@@ -7,7 +7,7 @@ import utime
 import random
 import gc
 
-PIN_NUM = const(22)
+PIN_NUM = const(20)
 
 # Configure the number of WS2812 LEDs.
 NUM_LEDS = const(300)  # must be a multiple of GROUP_SIZE

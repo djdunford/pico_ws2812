@@ -28,7 +28,7 @@ LED_DUTY_CYCLE = const(5000)  # PWM rate, out of 65535
 
 buttons = []
 buttons.append(machine.Pin(21, machine.Pin.IN, machine.Pin.PULL_UP))
-buttons.append(machine.Pin(20, machine.Pin.IN, machine.Pin.PULL_UP))
+buttons.append(machine.Pin(22, machine.Pin.IN, machine.Pin.PULL_UP))
 buttons.append(machine.Pin(19, machine.Pin.IN, machine.Pin.PULL_UP))
 buttons.append(machine.Pin(18, machine.Pin.IN, machine.Pin.PULL_UP))
 
