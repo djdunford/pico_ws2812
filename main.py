@@ -79,6 +79,15 @@ async def twinkling_only():
         print("twinkling only ended")
     except uasyncio.CancelledError:
         pass
+    
+    
+async def starlight():
+    try:
+        print("starlight")
+        await ws2812.starlight(lcd, next_button_pressed)
+        print("starlight ended")
+    except uasyncio.CancelledError:
+        pass
 
 
 async def led_flash():
@@ -139,7 +148,7 @@ async def main():
                 await running_task
                 print("cancelled existing")
             next_button_pressed.clear()
-            running_task = uasyncio.create_task(twinkling_only())
+            running_task = uasyncio.create_task(starlight())
 
         await uasyncio.sleep(0)
 

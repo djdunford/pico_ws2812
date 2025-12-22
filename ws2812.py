@@ -10,7 +10,7 @@ import gc
 PIN_NUM = const(20)
 
 # Configure the number of WS2812 LEDs.
-NUM_LEDS = const(300)  # must be a multiple of GROUP_SIZE
+NUM_LEDS = const(36)  # must be a multiple of GROUP_SIZE
 GROUP_SIZE = const(30)
 
 BRIGHTNESSES = array.array("I", [30, 100, 200, 255, 200, 100])
@@ -160,6 +160,62 @@ async def fast_sequence(next_button_pressed, twinkles, ticks):
         
         await pixels_show()
         await uasyncio.sleep(0)
+
+
+async def starlight(lcd, next_button_pressed):
+
+    numberofleds = NUM_LEDS
+
+    ledslist = [] # 0 to 128
+    blueorwhite = [] # 1 or 2
+
+
+    for i in range(numberofleds):
+        ledslist.append(0)
+        blueorwhite.append(1)
+    
+    while True:
+        
+        if random.randint(1,100) > 95:
+    
+            num1 = random.randint(0,(numberofleds-1))
+            
+            if ledslist[num1] == 0: 
+                ledslist[num1] = 318
+                num2 = random.randint(1,2)
+                blueorwhite[num1] = num2
+            else:
+                pass
+            
+            
+        
+            
+        for i in range(numberofleds):
+            
+            if ledslist[i] > 254: # fade in if bigger than 254
+                
+                colour =  4 * abs(ledslist[i]-318)
+                
+                if blueorwhite[i] == 1:
+                    pixels_set(i, ((colour,colour,colour)))
+                else:
+                    pixels_set(i, ((0,colour,colour)))
+                    
+            else: #if not bigger than 254 
+                
+                if blueorwhite[i] == 1: # fade out
+                    pixels_set(i, ((ledslist[i],ledslist[i],ledslist[i])))
+                else:
+                    pixels_set(i, ((0,ledslist[i],ledslist[i])))
+                    
+        await pixels_show()
+                
+        for i in range(numberofleds):
+            if ledslist[i] != 0:
+                ledslist[i] =  ledslist[i] - 2                 
+            
+            
+        await uasyncio.sleep(0.01)
 
 
 async def twinkling(next_button_pressed, twinkles, ticks, cherry=False):
