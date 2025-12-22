@@ -165,6 +165,10 @@ async def fast_sequence(next_button_pressed, twinkles, ticks):
 async def starlight(lcd, next_button_pressed):
 
     numberofleds = NUM_LEDS
+    
+    starttime = utime.ticks_ms()
+    
+    
 
     ledslist = [] # 0 to 128
     blueorwhite = [] # 1 or 2
@@ -176,7 +180,11 @@ async def starlight(lcd, next_button_pressed):
     
     while True:
         
-        if random.randint(1,100) > 95:
+        chance = max(1000-((utime.ticks_diff(utime.ticks_ms(),starttime))//900),800)
+        
+        print(chance)
+        
+        if random.randint(1,1000) > chance:
     
             num1 = random.randint(0,(numberofleds-1))
             
