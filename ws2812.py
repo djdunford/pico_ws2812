@@ -168,8 +168,6 @@ async def starlight(lcd, next_button_pressed):
     
     starttime = utime.ticks_ms()
     
-    
-
     ledslist = [] # 0 to 128
     blueorwhite = [] # 1 or 2
 
@@ -178,7 +176,7 @@ async def starlight(lcd, next_button_pressed):
         ledslist.append(0)
         blueorwhite.append(1)
     
-    while True:
+    while not next_button_pressed.is_set():
         
         chance = max(1000-((utime.ticks_diff(utime.ticks_ms(),starttime))//900),800)
         
@@ -198,6 +196,36 @@ async def starlight(lcd, next_button_pressed):
             
         
             
+        for i in range(numberofleds):
+            
+            if ledslist[i] > 254: # fade in if bigger than 254
+                
+                colour =  4 * abs(ledslist[i]-318)
+                
+                if blueorwhite[i] == 1:
+                    pixels_set(i, ((colour,colour,colour)))
+                else:
+                    pixels_set(i, ((0,colour,colour)))
+                    
+            else: #if not bigger than 254 
+                
+                if blueorwhite[i] == 1: # fade out
+                    pixels_set(i, ((ledslist[i],ledslist[i],ledslist[i])))
+                else:
+                    pixels_set(i, ((0,ledslist[i],ledslist[i])))
+                    
+        await pixels_show()
+                
+        for i in range(numberofleds):
+            if ledslist[i] != 0:
+                ledslist[i] =  ledslist[i] - 2                 
+            
+            
+        await uasyncio.sleep(0.01)
+
+
+    while True:
+
         for i in range(numberofleds):
             
             if ledslist[i] > 254: # fade in if bigger than 254
