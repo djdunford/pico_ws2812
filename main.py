@@ -84,6 +84,7 @@ async def twinkling_only():
 async def starlight():
     try:
         print("starlight")
+        
         await ws2812.starlight(lcd, next_button_pressed)
         print("starlight ended")
     except uasyncio.CancelledError:
