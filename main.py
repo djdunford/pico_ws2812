@@ -7,6 +7,8 @@ import utime
 import LCD1602
 from micropython import const
 
+# machine.freq(180000000)
+
 # mock class should the LCD not be detected
 class NoLcd:
     def print_lcd(self, _m):
@@ -28,7 +30,7 @@ LED_DUTY_CYCLE = const(5000)  # PWM rate, out of 65535
 
 buttons = []
 buttons.append(machine.Pin(21, machine.Pin.IN, machine.Pin.PULL_UP))
-buttons.append(machine.Pin(22, machine.Pin.IN, machine.Pin.PULL_UP))
+buttons.append(machine.Pin(20, machine.Pin.IN, machine.Pin.PULL_UP))
 buttons.append(machine.Pin(19, machine.Pin.IN, machine.Pin.PULL_UP))
 buttons.append(machine.Pin(18, machine.Pin.IN, machine.Pin.PULL_UP))
 

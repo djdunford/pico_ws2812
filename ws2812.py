@@ -7,10 +7,10 @@ import utime
 import random
 import gc
 
-PIN_NUM = const(20)
+PIN_NUM = 22
 
 # Configure the number of WS2812 LEDs.
-NUM_LEDS = const(50)  # must be a multiple of GROUP_SIZE
+NUM_LEDS = const(280)  # must be a multiple of GROUP_SIZE
 GROUP_SIZE = const(1)
 
 BRIGHTNESSES = array.array("I", [30, 100, 200, 255, 200, 100])
@@ -168,6 +168,7 @@ async def starlight(lcd, next_button_pressed):
 
     numberofleds = NUM_LEDS
     
+    prevchance = 0
 
     starttime = utime.ticks_ms()
     
@@ -183,9 +184,16 @@ async def starlight(lcd, next_button_pressed):
         
         global chance
 
+
+
         chance = max(1000-((utime.ticks_diff(utime.ticks_ms(),starttime))//900),800)
         
-        lcd.print_lcd(f"STARLIGHT {chance}")
+        if chance != prevchance:
+            lcd.print_lcd(f"STARLIGHT {chance}")
+            print("lcd changed")
+            prevchance = chance
+            
+        
 
         print(chance)
         
@@ -224,8 +232,10 @@ async def starlight(lcd, next_button_pressed):
         await pixels_show()
                 
         for i in range(numberofleds):
-            if ledslist[i] != 0:
-                ledslist[i] =  ledslist[i] - 2                 
+            if ledslist[i] > 8:
+                ledslist[i] =  ledslist[i] - 8
+            if ledslist[i] <= 8:
+                ledslist[i] = 0
             
             
         await uasyncio.sleep(0.01)
@@ -254,8 +264,10 @@ async def starlight(lcd, next_button_pressed):
         await pixels_show()
                 
         for i in range(numberofleds):
-            if ledslist[i] != 0:
-                ledslist[i] =  ledslist[i] - 2                 
+            if ledslist[i] > 8:
+                ledslist[i] =  ledslist[i] - 8
+            if ledslist[i] <= 8:
+                ledslist[i] = 0
             
             
         await uasyncio.sleep(0.01)
