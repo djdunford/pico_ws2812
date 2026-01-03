@@ -7,7 +7,7 @@ import utime
 import LCD1602
 from micropython import const
 
-# machine.freq(180000000)
+machine.freq(180000000)
 
 # mock class should the LCD not be detected
 class NoLcd:
@@ -27,6 +27,7 @@ BLACK = (0, 0, 0)
 
 LED_PIN = const(17)
 LED_DUTY_CYCLE = const(5000)  # PWM rate, out of 65535
+LED_FREQUENCY = const(5000)  # PWM frequency, in Hz
 
 buttons = []
 buttons.append(machine.Pin(21, machine.Pin.IN, machine.Pin.PULL_UP))
@@ -35,14 +36,10 @@ buttons.append(machine.Pin(19, machine.Pin.IN, machine.Pin.PULL_UP))
 buttons.append(machine.Pin(18, machine.Pin.IN, machine.Pin.PULL_UP))
 
 print("Starting")
-# led = machine.Pin(LED_PIN, machine.Pin.OUT)
 led = machine.PWM(machine.Pin(LED_PIN, machine.Pin.OUT))
-led.freq(5000)
+led.freq(LED_FREQUENCY)
 
 debounce_ms = const(1000)
-
-machine.freq(180000000)
-
 
 async def blank():
     try:
@@ -50,35 +47,6 @@ async def blank():
         print("blanking")
         ws2812.pixels_fill(BLACK)
         await ws2812.pixels_show()
-    except uasyncio.CancelledError:
-        pass
-
-
-async def blue_green(milli_brightness:int=1000):
-    try:
-        lcd.print_lcd(f"Blue-Green {milli_brightness}")
-        print(f"blue green cycle: brightness {milli_brightness}")
-        color_range = list(range(85, 170, 1)) + list(range(169, 86, -1))
-        await ws2812.rainbow_cycle_2(0, color_range, 2592000, 100, 1.5, milli_brightness)
-        print(f"blue green cycle ended: brightness {milli_brightness}")
-    except uasyncio.CancelledError:
-        pass
-
-
-async def enchanted_forest_base():
-    try:
-        print("enchanted forest base")
-        await ws2812.enchanted_forest_base(lcd, next_button_pressed)
-        print("enchanted forest base ended")
-    except uasyncio.CancelledError:
-        pass
-
-
-async def twinkling_only():
-    try:
-        print("twinkling only")
-        await ws2812.twinkling_only(lcd, next_button_pressed)
-        print("twinkling only ended")
     except uasyncio.CancelledError:
         pass
     
