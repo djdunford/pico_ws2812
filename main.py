@@ -53,25 +53,39 @@ async def blank():
     
 async def curtain_warmer():
     try:
-        lcd.print_lcd("CURTAIN WARMERS")
-        print("curtain warmers")
+
+        LEVEL = 40  # Max brightness level for curtain warmers
+        FADE_TIME_MS = 1000  # Time to fade in/out in milliseconds
+
+        # fade in
+        lcd.print_lcd("FADE IN CURTAIN")
+        print("fade in curtain warmers")
         start_time = utime.ticks_ms()
-        while utime.ticks_diff(utime.ticks_ms(), start_time) < 1000:
+        while utime.ticks_diff(utime.ticks_ms(), start_time) < FADE_TIME_MS:
             
-            ws2812.pixels_fill((utime.ticks_diff(utime.ticks_ms(), start_time)*40//1000,0,0))
+            ws2812.pixels_fill((utime.ticks_diff(utime.ticks_ms(), start_time)*LEVEL//FADE_TIME_MS,0,0))
             await ws2812.pixels_show()
         
+        # stable
+        lcd.print_lcd("CURTAIN WARMERS")
+        print("curtain warmers")
         while not next_button_pressed.is_set():
+            ws2812.pixels_fill((LEVEL,0,0))
+
+            # add ripple pattern here, if required
+
             await uasyncio.sleep(0.05)
 
+        # fade out
         lcd.print_lcd("FADE CURTAIN")
         print("fade curtain warmers")
 
         start_time = utime.ticks_ms()
-        while utime.ticks_diff(utime.ticks_ms(), start_time) < 1000:
-            ws2812.pixels_fill((max(40-utime.ticks_diff(utime.ticks_ms(), start_time)*40//1000,0),0,0))
+        while utime.ticks_diff(utime.ticks_ms(), start_time) < FADE_TIME_MS:
+            ws2812.pixels_fill((max(LEVEL-utime.ticks_diff(utime.ticks_ms(), start_time)*LEVEL//FADE_TIME_MS,0),0,0))
             await ws2812.pixels_show()
 
+        # all off
         lcd.print_lcd("ALL OFF")
         print("all off")
         ws2812.pixels_fill((0,0,0))
