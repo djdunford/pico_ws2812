@@ -51,6 +51,36 @@ async def blank():
         pass
     
     
+async def curtain_warmer():
+    try:
+        lcd.print_lcd("CURTAIN WARMERS")
+        print("curtain warmers")
+        start_time = utime.ticks_ms()
+        while utime.ticks_diff(utime.ticks_ms(), start_time) < 1000:
+            
+            ws2812.pixels_fill((utime.ticks_diff(utime.ticks_ms(), start_time)*40//1000,0,0))
+            await ws2812.pixels_show()
+        
+        while not next_button_pressed.is_set():
+            await uasyncio.sleep(0.05)
+
+        lcd.print_lcd("FADE CURTAIN")
+        print("fade curtain warmers")
+
+        start_time = utime.ticks_ms()
+        while utime.ticks_diff(utime.ticks_ms(), start_time) < 1000:
+            ws2812.pixels_fill((max(40-utime.ticks_diff(utime.ticks_ms(), start_time)*40//1000,0),0,0))
+            await ws2812.pixels_show()
+
+        lcd.print_lcd("ALL OFF")
+        print("all off")
+        ws2812.pixels_fill((0,0,0))
+        await ws2812.pixels_show()
+        
+    except uasyncio.CancelledError:
+        pass
+    
+    
 async def starlight():
     try:
         print("starlight")
@@ -99,9 +129,15 @@ async def main():
 
         # Change colour
         if not buttons[1].value() and utime.ticks_diff(utime.ticks_ms(), pressed) > debounce_ms:
-            print("button 4 - switch colour")
+            print("button 4 - curtain warmers")
             pressed=utime.ticks_ms()
-            ws2812.TWINKLE_COLOUR = (ws2812.TWINKLE_COLOUR + 1) % len(ws2812.TWINKLE_COLOURS_RED)
+            if running_task:
+                print("cancelling existing")
+                running_task.cancel()
+                await running_task
+                print("cancelled existing")
+            next_button_pressed.clear()
+            running_task = uasyncio.create_task(curtain_warmer())
 
         # set Next event trigger
         if not buttons[3].value() and utime.ticks_diff(utime.ticks_ms(), pressed) > debounce_ms:

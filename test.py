@@ -2,6 +2,7 @@
 
 import ws2812
 import uasyncio
+import utime
 
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
@@ -16,18 +17,40 @@ COLORS = (BLACK, RED, YELLOW, GREEN, CYAN, BLUE, PURPLE, WHITE)
 
 async def rgb_test():
     try:
-        print("rgb")
-        ws2812.pixels_fill(BLACK)
-        ws2812.pixels_set(2, RED)
-        ws2812.pixels_set(4, GREEN)
-        ws2812.pixels_set(7, BLUE)
+        while True:
+            print("rgb")
+        
+            sleeptime = 0.75
+        
+            ws2812.pixels_fill(RED)
+            await ws2812.pixels_show()
+            await uasyncio.sleep(sleeptime)
+            
+            ws2812.pixels_fill(GREEN)
+            await ws2812.pixels_show()
+            await uasyncio.sleep(sleeptime)
+            
+            ws2812.pixels_fill(BLUE)
+            await ws2812.pixels_show()
+            await uasyncio.sleep(sleeptime)
+            
+    except uasyncio.CancelledError:
+        pass
+    
+    
+async def black():
+    try:
+        
+        ws2812.pixels_fill((40,0,0))
         await ws2812.pixels_show()
+        await uasyncio.sleep(0.01)
+        
     except uasyncio.CancelledError:
         pass
 
 
 async def main():
-    running_task = uasyncio.create_task(rgb_test())
+    running_task = uasyncio.create_task(black())
     await running_task
 
 
