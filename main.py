@@ -69,12 +69,49 @@ async def curtain_warmer():
         # stable
         lcd.print_lcd("CURTAIN WARMERS")
         print("curtain warmers")
+        
+        lightnumbers = []
+        
+        for i in range(0,283):
+            lightnumbers.append(i)
+            
+        start_time = utime.ticks_ms()
+        
         while not next_button_pressed.is_set():
             ws2812.pixels_fill((LEVEL,0,0))
+            
+            location = utime.ticks_diff(utime.ticks_ms(), start_time) % 28300
+            
+            location = location // 100
+            
+            originallocation = location
 
             # add ripple pattern here, if required
+            for i in range(6):
+                
+                
+                for i in range(10):
+                    
+                    lightnumber = lightnumbers[(location-i) % 283]
+                    
+                    # if lightnumber >= 0 and lightnumber < 283:
+                    ws2812.pixels_set(lightnumber,(LEVEL-((10-i)*10),0,0))
+                
+                
+                for i in range(10):
+                    
+                    lightnumber = lightnumbers[(location+i) % 283]
+                    
+                    # if lightnumber >= 0 and lightnumber < 283:
+                    ws2812.pixels_set(lightnumber,(LEVEL-((10-i)*10),0,0))
+                    
+                location = location - 50
 
-            await uasyncio.sleep(0.05)
+                
+                ws2812.pixels_set(lightnumbers[originallocation],(240,0,0))
+            
+            await ws2812.pixels_show()
+            await uasyncio.sleep(0.02)
 
         # fade out
         lcd.print_lcd("FADE CURTAIN")

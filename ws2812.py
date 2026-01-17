@@ -76,9 +76,9 @@ async def starlight(lcd, next_button_pressed):
     while not next_button_pressed.is_set():
         global chance
 
-        chance = max(1000-((utime.ticks_diff(utime.ticks_ms(),starttime))//300),602)
+        chance = max(1000-((utime.ticks_diff(utime.ticks_ms(),starttime))//300),600)
         if chance != prevchance:
-            lcd.print_lcd(f"STARLIGHT {(1000-chance)//2}%")
+            lcd.print_lcd(f"STARLIGHT {(1000-chance)//4}%")
             print("lcd changed")
             prevchance = chance
 
