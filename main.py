@@ -79,8 +79,6 @@ COLORS = (BLACK, RED, YELLOW, GREEN, CYAN, BLUE, PURPLE, WHITE)
 def loop_filler(loopnum,colournum,brightness):
     try:
         
-        print(f"set loop {loopnum} to colour: {colournum} with brightness {brightness}")
-        
         for i in range(loopstarts[loopnum],loopends[loopnum]):
             
             ws2812.pixels_set(i, dim_colour(colournum,brightness))
@@ -90,16 +88,16 @@ def loop_filler(loopnum,colournum,brightness):
 
     
 async def colour_loop():
-    randnum = random.randint(0,100) % 7 + 1
-    start_time = utime.ticks_ms()
-    
     try:
         lcd.print_lcd("PARTY LIGHTS")
 
         segment_colours = [0] * len(loopstarts)
         last_step = -1
+        start_time = utime.ticks_ms()
+        fade_out = False
+        fade_start_time = start_time
 
-        while True:
+        while not fade_out or utime.ticks_diff(utime.ticks_ms(), fade_start_time) < 1000:
             elapsed = utime.ticks_diff(utime.ticks_ms(), start_time)
             step = elapsed // 850
 
@@ -113,12 +111,26 @@ async def colour_loop():
                             break
 
             for j in range(len(loopstarts)):
-                loop_filler(j, COLORS[segment_colours[j]], min(elapsed//10,100))
+                if fade_out:
+                    fade_elapsed = utime.ticks_diff(utime.ticks_ms(), fade_start_time)
+                    brightness = max(100 - (fade_elapsed // 10), 0)
+                    loop_filler(j, COLORS[segment_colours[j]], brightness)
+                else:
+                    brightness = min(elapsed // 10, 100)
+                    loop_filler(j, COLORS[segment_colours[j]], brightness)
                 
             await ws2812.pixels_show()
             
-        # fade out here?
-            
+            if not fade_out and next_button_pressed.is_set():
+                next_button_pressed.clear()
+                print("fading out")
+                lcd.print_lcd("PARTY FADEOUT")
+                fade_out = True
+                fade_start_time = utime.ticks_ms()
+
+        ws2812.pixels_fill(BLACK)
+        await ws2812.pixels_show()
+        print("all off")
         lcd.print_lcd("ALL OFF")
         
     except uasyncio.CancelledError:
