@@ -80,9 +80,9 @@ async def curtain_warmer():
         while not next_button_pressed.is_set():
             ws2812.pixels_fill((LEVEL,0,0))
             
-            location = utime.ticks_diff(utime.ticks_ms(), start_time) % 28300
+            location = utime.ticks_diff(utime.ticks_ms(), start_time) % 42450
             
-            location = location // 100
+            location = location // 150
             
             originallocation = location
 
@@ -95,7 +95,7 @@ async def curtain_warmer():
                     lightnumber = lightnumbers[(location-i) % 283]
                     
                     # if lightnumber >= 0 and lightnumber < 283:
-                    ws2812.pixels_set(lightnumber,(LEVEL-((10-i)*10),0,0))
+                    ws2812.pixels_set(lightnumber,(min(((10-i)*10),40),0,0))
                 
                 
                 for i in range(10):
@@ -103,12 +103,12 @@ async def curtain_warmer():
                     lightnumber = lightnumbers[(location+i) % 283]
                     
                     # if lightnumber >= 0 and lightnumber < 283:
-                    ws2812.pixels_set(lightnumber,(LEVEL-((10-i)*10),0,0))
+                    ws2812.pixels_set(lightnumber,(min(((10-i)*10),40),0,0))
                     
                 location = location - 50
 
                 
-                ws2812.pixels_set(lightnumbers[originallocation],(240,0,0))
+                # ws2812.pixels_set(lightnumbers[originallocation],(240,0,0))
             
             await ws2812.pixels_show()
             await uasyncio.sleep(0.02)
