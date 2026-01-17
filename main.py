@@ -59,6 +59,9 @@ loopends =   [20,38,54,70,89,105,124,140,157,174,191,209,228,248,264,283]
 def scale_colour(rgb,factor):
     return tuple(math.ceil(c // factor) for c in rgb)
 
+def dim_colour(rgb,brightness):
+    return tuple(math.ceil(c * max(min(brightness,100),0) // 100) for c in rgb)
+
 scalenum = 16
 
 BLACK = (0,0,0)
@@ -71,45 +74,48 @@ PURPLE = scale_colour((180, 0, 255),scalenum)
 WHITE = scale_colour((255, 255, 255),scalenum)
 
 COLORS = (BLACK, RED, YELLOW, GREEN, CYAN, BLUE, PURPLE, WHITE)
-    
-async def loop_filler(loopnum,colournum):
+
+
+def loop_filler(loopnum,colournum,brightness):
     try:
         
-        
-        print(f"set loop {loopnum} to colour: {colournum}")
+        print(f"set loop {loopnum} to colour: {colournum} with brightness {brightness}")
         
         for i in range(loopstarts[loopnum],loopends[loopnum]):
             
-            ws2812.pixels_set(i, colournum)
+            ws2812.pixels_set(i, dim_colour(colournum,brightness))
             
     except uasyncio.CancelledError:
         pass
+
     
 async def colour_loop():
-    
     randnum = random.randint(0,100) % 7 + 1
-    prevrandnum = 0
+    start_time = utime.ticks_ms()
     
     try:
         lcd.print_lcd("PARTY LIGHTS")
-        
-        #fade in here?
-        
+
+        segment_colours = [0] * len(loopstarts)
+        last_step = -1
+
         while True:
+            elapsed = utime.ticks_diff(utime.ticks_ms(), start_time)
+            step = elapsed // 850
+
+            if step != last_step:
+                last_step = step
+                for j in range(len(loopstarts)):
+                    while True:
+                        randnum = random.randint(0,100) % 7 + 1
+                        if randnum != segment_colours[j]:
+                            segment_colours[j] = randnum
+                            break
+
             for j in range(len(loopstarts)):
+                loop_filler(j, COLORS[segment_colours[j]], min(elapsed//10,100))
                 
-                while randnum  == prevrandnum:
-                    randnum = random.randint(0,100) % 7 + 1
-                
-                await loop_filler(j, COLORS[randnum])
-                
-                prevrandnum = randnum
-                
-            prevrandnum = 0
-            
             await ws2812.pixels_show()
-            print("Colours shown")
-            await uasyncio.sleep(0.85)
             
         # fade out here?
             
