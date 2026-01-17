@@ -5,6 +5,8 @@ import uasyncio
 import machine
 import utime
 import LCD1602
+import random
+import math
 from micropython import const
 
 machine.freq(180000000)
@@ -51,85 +53,145 @@ async def blank():
         pass
     
     
-async def curtain_warmer():
+loopstarts = [ 0,21,39,55,71, 90,106,125,142,158,175,192,210,229,249,265]
+loopends =   [20,38,54,70,89,105,124,140,157,174,191,209,228,248,264,283]
+
+
+
+def scale_colour(rgb,factor):
+    return tuple(math.ceil(c / factor) for c in rgb)
+
+BLACK = (0,0,0)
+RED = scale_colour((255, 0, 0),16)
+YELLOW = scale_colour((255, 150, 0),16)
+GREEN = scale_colour((0, 255, 0),16)
+CYAN = scale_colour((0, 255, 255),16)
+BLUE = scale_colour((0, 0, 255),16)
+PURPLE = scale_colour((180, 0, 255),16)
+WHITE = scale_colour((255, 255, 255),16)
+
+COLORS = (BLACK, RED, YELLOW, GREEN, CYAN, BLUE, PURPLE, WHITE)
+    
+async def loop_filler(loopnum,colournum):
     try:
-
-        LEVEL = 40  # Max brightness level for curtain warmers
-        FADE_TIME_MS = 1000  # Time to fade in/out in milliseconds
-
-        # fade in
-        lcd.print_lcd("FADE IN CURTAIN")
-        print("fade in curtain warmers")
-        start_time = utime.ticks_ms()
-        while utime.ticks_diff(utime.ticks_ms(), start_time) < FADE_TIME_MS:
-            
-            ws2812.pixels_fill((utime.ticks_diff(utime.ticks_ms(), start_time)*LEVEL//FADE_TIME_MS,0,0))
-            await ws2812.pixels_show()
         
-        # stable
-        lcd.print_lcd("CURTAIN WARMERS")
-        print("curtain warmers")
         
-        lightnumbers = []
+        print(f"set loop {loopnum} to colour: {colournum}")
         
-        for i in range(0,283):
-            lightnumbers.append(i)
+        for i in range(loopstarts[loopnum],loopends[loopnum]):
             
-        start_time = utime.ticks_ms()
-        
-        while not next_button_pressed.is_set():
-            ws2812.pixels_fill((LEVEL,0,0))
+            ws2812.pixels_set(i, colournum)
             
-            location = utime.ticks_diff(utime.ticks_ms(), start_time) % 42450
-            
-            location = location // 150
-            
-            originallocation = location
-
-            # add ripple pattern here, if required
-            for i in range(6):
+    except uasyncio.CancelledError:
+        pass
+    
+async def colour_loop():
+    
+    randnum = random.randint(0,100) % 7 + 1
+    prevrandnum = 0
+    
+    try:
+        lcd.print_lcd("PARTY LIGHTS")
+        while True:
+            for j in range(len(loopstarts)):
                 
+                while randnum  == prevrandnum:
+                    randnum = random.randint(0,100) % 7 + 1
                 
-                for i in range(10):
-                    
-                    lightnumber = lightnumbers[(location-i) % 283]
-                    
-                    # if lightnumber >= 0 and lightnumber < 283:
-                    ws2812.pixels_set(lightnumber,(min(((10-i)*10),40),0,0))
+                await loop_filler(j, COLORS[randnum])
                 
+                prevrandnum = randnum
                 
-                for i in range(10):
-                    
-                    lightnumber = lightnumbers[(location+i) % 283]
-                    
-                    # if lightnumber >= 0 and lightnumber < 283:
-                    ws2812.pixels_set(lightnumber,(min(((10-i)*10),40),0,0))
-                    
-                location = location - 50
-
-                
-                # ws2812.pixels_set(lightnumbers[originallocation],(240,0,0))
+            prevrandnum = 0
             
             await ws2812.pixels_show()
-            await uasyncio.sleep(0.02)
-
-        # fade out
-        lcd.print_lcd("FADE CURTAIN")
-        print("fade curtain warmers")
-
-        start_time = utime.ticks_ms()
-        while utime.ticks_diff(utime.ticks_ms(), start_time) < FADE_TIME_MS:
-            ws2812.pixels_fill((max(LEVEL-utime.ticks_diff(utime.ticks_ms(), start_time)*LEVEL//FADE_TIME_MS,0),0,0))
-            await ws2812.pixels_show()
-
-        # all off
+            print("Colours shown")
+            await uasyncio.sleep(0.85)
         lcd.print_lcd("ALL OFF")
-        print("all off")
-        ws2812.pixels_fill((0,0,0))
-        await ws2812.pixels_show()
         
     except uasyncio.CancelledError:
         pass
+
+    
+# async def curtain_warmer():
+#     try:
+# 
+#         LEVEL = 40  # Max brightness level for curtain warmers
+#         FADE_TIME_MS = 1000  # Time to fade in/out in milliseconds
+# 
+#         # fade in
+#         lcd.print_lcd("FADE IN CURTAIN")
+#         print("fade in curtain warmers")
+#         start_time = utime.ticks_ms()
+#         while utime.ticks_diff(utime.ticks_ms(), start_time) < FADE_TIME_MS:
+#             
+#             ws2812.pixels_fill((utime.ticks_diff(utime.ticks_ms(), start_time)*LEVEL//FADE_TIME_MS,0,0))
+#             await ws2812.pixels_show()
+#         
+#         # stable
+#         lcd.print_lcd("CURTAIN WARMERS")
+#         print("curtain warmers")
+#         
+#         lightnumbers = []
+#         
+#         for i in range(0,283):
+#             lightnumbers.append(i)
+#             
+#         start_time = utime.ticks_ms()
+#         
+#         while not next_button_pressed.is_set():
+#             ws2812.pixels_fill((LEVEL,0,0))
+#             
+#             location = utime.ticks_diff(utime.ticks_ms(), start_time) % 42450
+#             
+#             location = location // 150
+#             
+#             originallocation = location
+# 
+#             # add ripple pattern here, if required
+#             for i in range(6):
+#                 
+#                 
+#                 for i in range(10):
+#                     
+#                     lightnumber = lightnumbers[(location-i) % 283]
+#                     
+#                     # if lightnumber >= 0 and lightnumber < 283:
+#                     ws2812.pixels_set(lightnumber,(min(((10-i)*10),40),0,0))
+#                 
+#                 
+#                 for i in range(10):
+#                     
+#                     lightnumber = lightnumbers[(location+i) % 283]
+#                     
+#                     # if lightnumber >= 0 and lightnumber < 283:
+#                     ws2812.pixels_set(lightnumber,(min(((10-i)*10),40),0,0))
+#                     
+#                 location = location - 50
+# 
+#                 
+#                 # ws2812.pixels_set(lightnumbers[originallocation],(240,0,0))
+#             
+#             await ws2812.pixels_show()
+#             await uasyncio.sleep(0.02)
+# 
+#         # fade out
+#         lcd.print_lcd("FADE CURTAIN")
+#         print("fade curtain warmers")
+# 
+#         start_time = utime.ticks_ms()
+#         while utime.ticks_diff(utime.ticks_ms(), start_time) < FADE_TIME_MS:
+#             ws2812.pixels_fill((max(LEVEL-utime.ticks_diff(utime.ticks_ms(), start_time)*LEVEL//FADE_TIME_MS,0),0,0))
+#             await ws2812.pixels_show()
+# 
+#         # all off
+#         lcd.print_lcd("ALL OFF")
+#         print("all off")
+#         ws2812.pixels_fill((0,0,0))
+#         await ws2812.pixels_show()
+#         
+#     except uasyncio.CancelledError:
+#         pass
     
     
 async def starlight():
@@ -180,7 +242,7 @@ async def main():
 
         # Change colour
         if not buttons[1].value() and utime.ticks_diff(utime.ticks_ms(), pressed) > debounce_ms:
-            print("button 4 - curtain warmers")
+            print("button 4 - party colours")
             pressed=utime.ticks_ms()
             if running_task:
                 print("cancelling existing")
@@ -188,7 +250,7 @@ async def main():
                 await running_task
                 print("cancelled existing")
             next_button_pressed.clear()
-            running_task = uasyncio.create_task(curtain_warmer())
+            running_task = uasyncio.create_task(colour_loop())
 
         # set Next event trigger
         if not buttons[3].value() and utime.ticks_diff(utime.ticks_ms(), pressed) > debounce_ms:
