@@ -57,7 +57,7 @@ loopstarts = [ 0,21,39,55,71, 90,106,125,142,158,175,192,210,229,249,265]
 loopends =   [20,38,54,70,89,105,124,140,157,174,191,209,228,248,264,283]
 
 def scale_colour(rgb,factor):
-    return tuple(math.ceil(c / factor) for c in rgb)
+    return tuple(math.ceil(c // factor) for c in rgb)
 
 scalenum = 16
 
