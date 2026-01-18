@@ -64,10 +64,10 @@ for i in range(len(loopends)):
 
 
 def scale_colour(rgb,factor):
-    return tuple(math.ceil(c // factor) for c in rgb)
+    return tuple((c // factor) for c in rgb)
 
 def dim_colour(rgb,brightness):
-    return tuple(math.ceil(c * max(min(brightness,100),0) // 100) for c in rgb)
+    return tuple((c * max(min(brightness,100),0) // 100) for c in rgb)
 
 scalenum = 2
 
@@ -104,7 +104,7 @@ async def colour_loop():
         fade_out = False
         fade_start_time = start_time
 
-        while not fade_out or utime.ticks_diff(utime.ticks_ms(), fade_start_time) < 1000:
+        while not fade_out or utime.ticks_diff(utime.ticks_ms(), fade_start_time) < 2500:
             elapsed = utime.ticks_diff(utime.ticks_ms(), start_time)
             step = elapsed // 850
 
@@ -120,7 +120,7 @@ async def colour_loop():
             for j in range(len(loopstarts)):
                 if fade_out:
                     fade_elapsed = utime.ticks_diff(utime.ticks_ms(), fade_start_time)
-                    brightness = max(100 - (fade_elapsed // 10), 0)
+                    brightness = max(100 - (fade_elapsed // 25), 0)
                     loop_filler(j, COLORS[segment_colours[j]], brightness)
                 else:
                     brightness = min(elapsed // 10, 100)
