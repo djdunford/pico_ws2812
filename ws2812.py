@@ -79,7 +79,6 @@ async def starlight(lcd, next_button_pressed):
         chance = max(1000-((utime.ticks_diff(utime.ticks_ms(),starttime))//300),600)
         if chance != prevchance:
             lcd.print_lcd(f"STARLIGHT {(1000-chance)//4}%")
-            print("lcd changed")
             prevchance = chance
 
         print(chance)
@@ -119,9 +118,10 @@ async def starlight(lcd, next_button_pressed):
 
         await uasyncio.sleep(0.01)
 
-    while True:
+    # while True:
+    lcd.print_lcd(f"STARLIGHT FADEOUT")
+    while [x for x in ledslist if x > 0]:  # while any led is still lit
 
-        lcd.print_lcd(f"STARLIGHT FADEOUT")
         for i in range(numberofleds):
             
             if ledslist[i] > 254: # fade in if bigger than 254
@@ -145,4 +145,7 @@ async def starlight(lcd, next_button_pressed):
             if ledslist[i] <= STEP:
                 ledslist[i] = 0
             
-        await uasyncio.sleep(0.01)
+    lcd.print_lcd(f"ALL OFF")
+
+    pixels_fill((0,0,0))
+    await pixels_show()
