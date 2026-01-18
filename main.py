@@ -53,8 +53,15 @@ async def blank():
         pass
     
     
-loopstarts = [ 0,21,39,55,71, 90,106,125,142,158,175,192,210,229,249,265]
-loopends =   [20,38,54,70,89,105,124,140,157,174,191,209,228,248,264,283]
+loopstarts = [ 0,21,39,55,71, 90,106,125,142,158,175,192,210,227,248,265]
+loopends =   [20,38,54,70,89,105,124,140,157,174,191,209,228,246,264,282]
+
+for i in range(len(loopstarts)):
+    loopstarts[i] = loopstarts[i]+2
+    
+for i in range(len(loopends)):
+    loopends[i] = loopends[i]-2
+
 
 def scale_colour(rgb,factor):
     return tuple(math.ceil(c // factor) for c in rgb)
@@ -62,7 +69,7 @@ def scale_colour(rgb,factor):
 def dim_colour(rgb,brightness):
     return tuple(math.ceil(c * max(min(brightness,100),0) // 100) for c in rgb)
 
-scalenum = 16
+scalenum = 2
 
 BLACK = (0,0,0)
 RED = scale_colour((255, 0, 0),scalenum) 
