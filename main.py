@@ -53,23 +53,20 @@ async def blank():
         pass
     
     
-loopstarts = [ 0,21,39,55,71, 90,106,125,142,158,175,192,210,227,248,265]
-loopends =   [20,38,54,70,89,105,124,140,157,174,191,209,228,246,264,282]
+loopstarts = [ 0,21,39,55,71, 90,106,125,142,158,175,192,210,229,249,265]
+loopends =   [20,38,54,70,89,105,124,140,157,174,191,209,228,248,264,283]
 
-for i in range(len(loopstarts)):
-    loopstarts[i] = loopstarts[i]+2
-    
-for i in range(len(loopends)):
-    loopends[i] = loopends[i]-2
-
+cads = [
+    [5,6,7],
+    [10,11,12],
+    [15,16,17],
+    [20,21,22],
+]
 
 def scale_colour(rgb,factor):
-    return tuple((c // factor) for c in rgb)
+    return tuple(math.ceil(c / factor) for c in rgb)
 
-def dim_colour(rgb,brightness):
-    return tuple((c * max(min(brightness,100),0) // 100) for c in rgb)
-
-scalenum = 2
+scalenum = 16
 
 BLACK = (0,0,0)
 RED = scale_colour((255, 0, 0),scalenum) 
@@ -81,68 +78,68 @@ PURPLE = scale_colour((180, 0, 255),scalenum)
 WHITE = scale_colour((255, 255, 255),scalenum)
 
 COLORS = (BLACK, RED, YELLOW, GREEN, CYAN, BLUE, PURPLE, WHITE)
-
-
-def loop_filler(loopnum,colournum,brightness):
+    
+async def loop_filler(loopnum,colournum):
     try:
+        
+        
+        print(f"set loop {loopnum} to colour: {colournum}")
         
         for i in range(loopstarts[loopnum],loopends[loopnum]):
             
-            ws2812.pixels_set(i, dim_colour(colournum,brightness))
+            ws2812.pixels_set(i, colournum)
             
     except uasyncio.CancelledError:
         pass
-
     
 async def colour_loop():
+    
+    randnum = random.randint(0,100) % 7 + 1
+    prevrandnum = 0
+    
     try:
         lcd.print_lcd("PARTY LIGHTS")
-
-        segment_colours = [0] * len(loopstarts)
-        last_step = -1
-        start_time = utime.ticks_ms()
-        fade_out = False
-        fade_start_time = start_time
-
-        while not fade_out or utime.ticks_diff(utime.ticks_ms(), fade_start_time) < 2500:
-            elapsed = utime.ticks_diff(utime.ticks_ms(), start_time)
-            step = elapsed // 850
-
-            if step != last_step:
-                last_step = step
-                for j in range(len(loopstarts)):
-                    while True:
-                        randnum = random.randint(0,100) % 7 + 1
-                        if randnum != segment_colours[j]:
-                            segment_colours[j] = randnum
-                            break
-
+        
+        #fade in here?
+        
+        while True:
             for j in range(len(loopstarts)):
-                if fade_out:
-                    fade_elapsed = utime.ticks_diff(utime.ticks_ms(), fade_start_time)
-                    brightness = max(100 - (fade_elapsed // 25), 0)
-                    loop_filler(j, COLORS[segment_colours[j]], brightness)
-                else:
-                    brightness = min(elapsed // 10, 100)
-                    loop_filler(j, COLORS[segment_colours[j]], brightness)
                 
-            await ws2812.pixels_show()
+                while randnum  == prevrandnum:
+                    randnum = random.randint(0,100) % 7 + 1
+                
+                await loop_filler(j, COLORS[randnum])
+                
+                prevrandnum = randnum
+                
+            prevrandnum = 0
             
-            if not fade_out and next_button_pressed.is_set():
-                next_button_pressed.clear()
-                print("fading out")
-                lcd.print_lcd("PARTY FADEOUT")
-                fade_out = True
-                fade_start_time = utime.ticks_ms()
-
-        ws2812.pixels_fill(BLACK)
-        await ws2812.pixels_show()
-        print("all off")
+            await ws2812.pixels_show()
+            print("Colours shown")
+            await uasyncio.sleep(0.85)
+            
+        # fade out here?
+            
         lcd.print_lcd("ALL OFF")
         
     except uasyncio.CancelledError:
         pass
-    
+
+
+async def letters():
+    try:
+        print("letters")
+        
+        while True:
+            for letter in cads:
+                for lednum in letter:
+                    ws2812.pixels_set(lednum, WHITE)
+            await ws2812.pixels_show()
+
+        print("letters ended")
+    except uasyncio.CancelledError:
+        pass
+
     
 async def starlight():
     try:
@@ -174,7 +171,7 @@ async def main():
     lcd.print_lcd("Starting")
     print("Starting loop")
     pressed = utime.ticks_ms()
-    running_task = uasyncio.create_task(blank())
+    running_task = uasyncio.create_task(letters())
     uasyncio.create_task(led_flash())
     while True:
 
@@ -192,7 +189,7 @@ async def main():
 
         # Change colour
         if not buttons[1].value() and utime.ticks_diff(utime.ticks_ms(), pressed) > debounce_ms:
-            print("button 4 - party colours")
+            print("button 4 - CADS letters")
             pressed=utime.ticks_ms()
             if running_task:
                 print("cancelling existing")
@@ -200,7 +197,7 @@ async def main():
                 await running_task
                 print("cancelled existing")
             next_button_pressed.clear()
-            running_task = uasyncio.create_task(colour_loop())
+            running_task = uasyncio.create_task(letters())
 
         # set Next event trigger
         if not buttons[3].value() and utime.ticks_diff(utime.ticks_ms(), pressed) > debounce_ms:
