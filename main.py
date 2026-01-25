@@ -52,21 +52,10 @@ async def blank():
     except uasyncio.CancelledError:
         pass
     
-    
-loopstarts = [ 0,21,39,55,71, 90,106,125,142,158,175,192,210,229,249,265]
-loopends =   [20,38,54,70,89,105,124,140,157,174,191,209,228,248,264,283]
-
-cads = [
-    [5,6,7],
-    [10,11,12],
-    [15,16,17],
-    [20,21,22],
-]
+scalenum = 6
 
 def scale_colour(rgb,factor):
     return tuple(math.ceil(c / factor) for c in rgb)
-
-scalenum = 16
 
 BLACK = (0,0,0)
 RED = scale_colour((255, 0, 0),scalenum) 
@@ -76,6 +65,17 @@ CYAN = scale_colour((0, 255, 255),scalenum)
 BLUE = scale_colour((0, 0, 255),scalenum)
 PURPLE = scale_colour((180, 0, 255),scalenum)
 WHITE = scale_colour((255, 255, 255),scalenum)
+    
+loopstarts = [ 0,21,39,55,71, 90,106,125,142,158,175,192,210,229,249,265]
+loopends =   [20,38,54,70,89,105,124,140,157,174,191,209,228,248,264,283]
+
+cads = [
+    {"colour": RED, "lights": [2,3,4,5,6,7,8,9,10,11,12,13]},
+    {"colour": GREEN, "lights": [18,19,20,21,22,23,25,26,27,28,29,30,31,32,33,34]},
+    {"colour": BLUE, "lights": [36,37,38,39,40,41,42,43,44,45,46,47,48,49,50]},
+    {"colour": PURPLE, "lights": [54,55,56,57,58,59,60,61,62,63,64,65,66,67]},
+]
+
 
 COLORS = (BLACK, RED, YELLOW, GREEN, CYAN, BLUE, PURPLE, WHITE)
     
@@ -129,14 +129,23 @@ async def colour_loop():
 async def letters():
     try:
         print("letters")
+
+        ws2812.pixels_fill(BLACK)
         
         while True:
             for letter in cads:
-                for lednum in letter:
-                    ws2812.pixels_set(lednum, WHITE)
+                for lednum in letter["lights"]:
+                    ws2812.pixels_set(lednum, letter["colour"])
             await ws2812.pixels_show()
+            await uasyncio.sleep(0.85)
+            prevrandnum = 0
+            for letter in cads:
+                randnum = random.randint(0,100) % 7 + 1
+                while randnum == prevrandnum:
+                    randnum = random.randint(0,100) % 7 + 1
+                prevrandnum = randnum
+                letter["colour"] = COLORS[randnum]
 
-        print("letters ended")
     except uasyncio.CancelledError:
         pass
 
